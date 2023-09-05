@@ -1,0 +1,35 @@
+"""
+    dcm_random()
+
+Generate a random transformation matrix.
+"""
+dcm_random() = dcm_fromAxisAngle(randn(3), 2π*rand())
+
+"""
+    R_AB = dcm_fromAxisAngle(u,θ_AB)
+
+Compute the transformation matrix given the axis and angle.
+```math
+R_{AB}(θ_{AB}) = I + \\sin(θ_{AB})[u×] + (1 - \\cos(θ_{AB}))[u×]^2
+```
+"""
+function dcm_fromAxisAngle(u::Vector, θ)
+    ux = crossMat(normalize(u))
+    return I + sin(θ)*ux + (1 - cos(θ))*ux*ux
+end
+
+dcm_fromAxisAngle(idx::Int, θ) = dcm_fromAxisAngle(Float64.([idx==1; idx==2; idx==3]), θ)
+
+"""
+    q_AB = dcm_toQuaternion(R_AB)
+
+Translate a transformation matrix into a quaternion.
+"""
+dcm_toQuaternion(R::Matrix) = q_fromDcm(R)
+
+"""
+    R_AB = dcm_fromQuaternion(q_AB)
+
+Compute a transformation matrix from a quaternion.
+"""
+dcm_fromQuaternion(q::Vector) = q_toDcm(q)
