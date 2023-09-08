@@ -164,3 +164,14 @@ end
 Compute the inverse of the input quaternion.
 """
 q_inverse(q::Vector) = q_transpose(q)./(q ⋅ q)
+
+
+function q_toRv(q::Vector)
+    nqv = norm(q[2:4])
+    if nqv < 1e-10
+        return zeros(3)
+    end
+    return (2*atan(nqv, q[1])/nqv).*q[2:4]
+end
+
+q_fromRv(ϕ::Vector) = q_fromAxisAngle(ϕ, norm(ϕ))

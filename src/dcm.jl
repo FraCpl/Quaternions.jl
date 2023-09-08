@@ -33,3 +33,6 @@ dcm_toQuaternion(R::Matrix) = q_fromDcm(R)
 Compute a transformation matrix from a quaternion.
 """
 dcm_fromQuaternion(q::Vector) = q_toDcm(q)
+
+dcm_fromRv(ϕ::Vector) = dcm_fromAxisAngle(ϕ, norm(ϕ))
+dcm_toRv(R::Matrix) = q_toRv(dcm_toQuaternion(R))

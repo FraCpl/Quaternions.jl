@@ -4,8 +4,8 @@ CurrentModule = Quaternions
 
 # Quaternions.jl
 
-This package provides a bare-bones representation of attitude transformations through quaternions 
-and transformation matrices (a.k.a. direction cosine matrices -- DCM). 
+This package provides a bare-bones representation of attitude transformations through quaternions, rotation
+vectors, and transformation matrices (a.k.a. direction cosine matrices -- DCM). 
 
 # Installation
 Just type:
@@ -51,6 +51,12 @@ Pages   = ["q.jl"]
 Modules = [Quaternions]
 Order   = [:function, :type]
 Pages   = ["dcm.jl"]
+```
+### Rotation vectors
+```@autodocs
+Modules = [Quaternions]
+Order   = [:function, :type]
+Pages   = ["rv.jl"]
 ```
 ### Auxiliary functions
 ```@docs
