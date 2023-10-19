@@ -13,7 +13,7 @@ Compute the transformation matrix given the axis and angle.
 R_{AB}(θ_{AB}) = I + \\sin(θ_{AB})[u×] + (1 - \\cos(θ_{AB}))[u×]^2
 ```
 """
-function dcm_fromAxisAngle(u::Vector, θ)
+function dcm_fromAxisAngle(u, θ)
     ux = crossMat(normalize(u))
     return I + sin(θ)*ux + (1 - cos(θ))*ux*ux
 end
@@ -32,7 +32,7 @@ dcm_toQuaternion(R::Matrix) = q_fromDcm(R)
 
 Compute a transformation matrix from a quaternion.
 """
-dcm_fromQuaternion(q::Vector) = q_toDcm(q)
+dcm_fromQuaternion(q) = q_toDcm(q)
 
-dcm_fromRv(ϕ::Vector) = dcm_fromAxisAngle(ϕ, norm(ϕ))
+dcm_fromRv(ϕ) = dcm_fromAxisAngle(ϕ, norm(ϕ))
 dcm_toRv(R::Matrix) = q_toRv(dcm_toQuaternion(R))
