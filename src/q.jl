@@ -33,7 +33,7 @@ end
 
 Build a quaternion from its scalar and vectorial components.
 """
-q_build(qs,qv) = [qs; qv]
+q_build(qs, qv) = [qs; qv]
 
 """
     R_AB = q_toDcm(q_AB)
@@ -151,9 +151,9 @@ q_fromAxisAngle(u, θ) = [cos(0.5θ); sin(0.5θ)*normalize(u)]
 q_fromAxisAngle(idx::Int, θ) = q_fromAxisAngle(Float64.([idx==1; idx==2; idx==3]), θ)
 
 function q_toAxes(q_BA)
-    xB_A = q_rotateVector(q_BA,[1.0; 0.0; 0.0])
-    yB_A = q_rotateVector(q_BA,[0.0; 1.0; 0.0])
-    zB_A = q_rotateVector(q_BA,[0.0; 0.0; 1.0])
+    xB_A = q_transformVector(q_BA,[1.0; 0.0; 0.0])
+    yB_A = q_transformVector(q_BA,[0.0; 1.0; 0.0])
+    zB_A = q_transformVector(q_BA,[0.0; 0.0; 1.0])
 
     return xB_A, yB_A, zB_A
 end
