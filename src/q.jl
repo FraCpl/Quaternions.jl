@@ -150,7 +150,8 @@ q_fromAxisAngle(u, θ) = [cos(0.5θ); sin(0.5θ)*normalize(u)]
 
 q_fromAxisAngle(idx::Int, θ) = q_fromAxisAngle(Float64.([idx==1; idx==2; idx==3]), θ)
 
-function q_toAxes(q_BA)
+function q_toAxes(q_AB)
+    q_BA = q_transpose(q_AB)
     xB_A = q_transformVector(q_BA,[1.0; 0.0; 0.0])
     yB_A = q_transformVector(q_BA,[0.0; 1.0; 0.0])
     zB_A = q_transformVector(q_BA,[0.0; 0.0; 1.0])
