@@ -6,7 +6,7 @@ Generate a random transformation matrix.
 dcm_random() = dcm_fromAxisAngle(randn(3), 2π*rand())
 
 """
-    R_AB = dcm_fromAxisAngle(u,θ_AB)
+    R_AB = dcm_fromAxisAngle(u, θ_AB)
 
 Compute the transformation matrix given the axis and angle.
 ```math
@@ -19,6 +19,15 @@ function dcm_fromAxisAngle(u, θ)
 end
 
 dcm_fromAxisAngle(idx::Int, θ) = dcm_fromAxisAngle(Float64.([idx==1; idx==2; idx==3]), θ)
+
+# θ = [θ_AB, θ_BC, θ_CD] --> R_AD
+function dcm_fromEuler(sequence::Vector{Int}, θ)
+    R = I
+    for i in eachindex(sequence)
+        R = R*dcm_fromAxisAngle(sequence[i], θ[i])
+    end
+    return R
+end
 
 """
     q_AB = dcm_toQuaternion(R_AB)
