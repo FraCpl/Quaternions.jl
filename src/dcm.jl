@@ -18,7 +18,10 @@ function dcm_fromAxisAngle(u, θ)
     return I + sin(θ)*ux + (1 - cos(θ))*ux*ux
 end
 
-dcm_fromAxisAngle(idx::Int, θ) = dcm_fromAxisAngle(Float64.([idx==1; idx==2; idx==3]), θ)
+function dcm_fromAxisAngle(idx::Int, θ)
+    u = zeros(3); u[idx] = 1.0
+    return dcm_fromAxisAngle(u, θ)
+end
 
 # θ = [θ_AB, θ_BC, θ_CD] --> R_AD
 function dcm_fromEuler(sequence::Vector{Int}, θ)
