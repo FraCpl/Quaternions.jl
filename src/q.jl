@@ -1,5 +1,5 @@
 """
-    q_AC = q_multiply(q_AB,q_BC)
+    q_AC = q_multiply(q_AB, q_BC)
 
 Mutliply the two input quaternions as follows:
 ```math
@@ -226,4 +226,34 @@ function q_fromEuler(θ)
         t1*t4*t5 - t2*t3*t6;
         t1*t3*t6 + t2*t4*t5;
         t2*t3*t5 - t1*t4*t6]
+end
+
+function q_exp(q)
+    qvn = norm(q[2:4])
+    qvnn = qvn
+    if qvnn == 0.0
+        qvnn = 1.0
+    end
+    qv = q[2:4]./qvnn
+    return exp(q[1]).*[cos(qvn); qv.*sin(qvn)]
+end
+
+function q_log(q)
+    vNorm = norm(q[2:4])
+    if vNorm == 0.0
+        vNorm = 1.0
+    end
+    nq = norm(q)
+    return [log(nq); q[2:4]/vNorm.*acos(q[1]/nq)]
+end
+
+q_power(q, n) = q_exp(n.*q_log(q))
+
+# τ in [0, 1]
+q_slerp(q0, q1, τ) = q_multiply(q0, q_power(q_multiply(q_transpose(q0), q1), τ))
+
+function q_interp(t, q, ti)
+    id0 = findlast(ti .≥ t)
+    id1 = min(id0+1, length(t))
+    return q_slerp(q[id0], q[id1], (ti - t[id0])/(t[id1] - t[id0]))
 end
