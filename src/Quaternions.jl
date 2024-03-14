@@ -11,6 +11,9 @@ Compute the cross product matrix of a vector ```v```.
 """
 crossMat(v::Vector) = [0 -v[3] v[2]; v[3] 0 -v[1]; -v[2] v[1] 0]
 
+export crossMatInv
+crossMatInv(M::Matrix) = [-M[2,3]; M[1, 3]; -M[1, 2]]
+
 export q_multiply, q_fromAxes, q_random, q_transformVector,
     q_transpose, q_fromDcm, q_derivative, q_multiplyn,
     q_fromAxisAngle, q_toAxes, q_toDcm, q_inverse, q_build,
