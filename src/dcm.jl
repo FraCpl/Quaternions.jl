@@ -46,5 +46,12 @@ Compute a transformation matrix from a quaternion.
 """
 dcm_fromQuaternion(q) = q_toDcm(q)
 
-dcm_fromRv(ϕ) = dcm_fromAxisAngle(ϕ, norm(ϕ))
+function dcm_fromRv(ϕ)
+    θ = norm(ϕ)
+    if θ == 0.0
+        return Matrix(1.0I, 3, 3)
+    end
+    return dcm_fromAxisAngle(ϕ, θ)
+end
+
 dcm_toRv(R::Matrix) = q_toRv(dcm_toQuaternion(R))
