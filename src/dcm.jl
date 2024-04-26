@@ -55,3 +55,16 @@ function dcm_fromRv(ϕ)
 end
 
 dcm_toRv(R::Matrix) = q_toRv(dcm_toQuaternion(R))
+
+"""
+    R_AB = dcm_fromAxes(xB_A, yB_A, zB_A)
+
+Compute the transformation matrix given as input the axes of a reference frame.
+"""
+function dcm_fromAxes(xB_A, yB_A, zB_A)
+    if isempty(xB_A); xB_A = yB_A × zB_A; end
+    if isempty(yB_A); yB_A = zB_A × xB_A; end
+    if isempty(zB_A); zB_A = xB_A × yB_A; end
+
+    return [xB_A yB_A zB_A] # R_AB
+end

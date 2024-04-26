@@ -22,7 +22,7 @@ export q_multiply, q_fromAxes, q_random, q_transformVector,
 include("q.jl")
 
 export dcm_random, dcm_fromAxisAngle, dcm_toQuaternion, dcm_fromQuaternion,
-    dcm_toRv, dcm_fromRv, dcm_fromEuler
+    dcm_toRv, dcm_fromRv, dcm_fromEuler, dcm_fromAxes
 include("dcm.jl")
 
 export rv_toQuaternion, rv_fromQuaternion, rv_derivative, rv_fromDcm, rv_toDcm

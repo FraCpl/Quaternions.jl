@@ -78,13 +78,7 @@ end
 
 Compute the attitude quaternion given as input the axes of a reference frame.
 """
-function q_fromAxes(xB_A, yB_A, zB_A)
-    if isempty(xB_A); xB_A = yB_A × zB_A; end
-    if isempty(yB_A); yB_A = zB_A × xB_A; end
-    if isempty(zB_A); zB_A = xB_A × yB_A; end
-
-    return q_fromDcm([xB_A yB_A zB_A])
-end
+q_fromAxes(xB_A, yB_A, zB_A) = q_fromDcm(dcm_fromAxes(xB_A, yB_A, zB_A))
 
 """
     q_random()
