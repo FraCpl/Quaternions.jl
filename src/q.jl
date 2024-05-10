@@ -136,12 +136,11 @@ frame ``A``, projected into frame ``B``.
 q_derivative(q_AB, ωAB_B) = q_multiply(q_AB,[0.0; 0.5.*ωAB_B])  # dq_BA
 
 """
-    q_AB = q_fromAxisAngle(u,θ_AB)
+    q_AB = q_fromAxisAngle(u, θ_AB)
 
 Compute the unitary quaternion given as input an axis-angle representation.
 """
 q_fromAxisAngle(u, θ) = [cos(0.5θ); sin(0.5θ)*normalize(u)]
-
 q_fromAxisAngle(idx::Int, θ) = q_fromAxisAngle(Float64.([idx==1; idx==2; idx==3]), θ)
 
 function q_toAxes(q_AB)
@@ -188,7 +187,8 @@ end
 
 # https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
 # 3(yaw)-2(pitch)-1(roll) sequence
-function q_toEuler(q)
+# CAUTION: Only [3, 2, 1] sequence is implemented for now
+function q_toEuler(q, sequence=[3, 2, 1])
 
     # roll (x-axis rotation)
     t1 = 2(q[1]*q[2] + q[3]*q[4])
@@ -205,21 +205,15 @@ function q_toEuler(q)
     t5 = +1 - 2(q[3]*q[3] + q[4]*q[4])
     yaw = atan(t4, t5)
 
-    return [roll; pitch; yaw]
+    return [yaw; pitch; roll]
 end
 
-# https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
-# 3(yaw)-2(pitch)-1(roll) sequence
-function q_fromEuler(θ)
-
-    t2, t1 = sincos(θ[3]/2)
-    t4, t3 = sincos(θ[1]/2)
-    t6, t5 = sincos(θ[2]/2)
-
-    return [t1*t3*t5 + t2*t4*t6;
-        t1*t4*t5 - t2*t3*t6;
-        t1*t3*t6 + t2*t4*t5;
-        t2*t3*t5 - t1*t4*t6]
+function q_fromEuler(θ, sequence=[3, 2, 1])
+    q = q_fromAxisAngle(sequence[1], θ[1])
+    for i in 2:lastindex(θ)
+        q .= q_multiply(q, q_fromAxisAngle(sequence[i], θ[i]))
+    end
+    return q
 end
 
 function q_exp(q)

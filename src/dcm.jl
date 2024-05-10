@@ -3,7 +3,7 @@
 
 Generate a random transformation matrix.
 """
-dcm_random() = dcm_fromAxisAngle(randn(3), 2π*rand())
+dcm_random() = q_toDcm(q_random())
 
 """
     R_AB = dcm_fromAxisAngle(u, θ_AB)
@@ -13,24 +13,12 @@ Compute the transformation matrix given the axis and angle.
 R_{AB}(θ_{AB}) = I + \\sin(θ_{AB})[u×] + (1 - \\cos(θ_{AB}))[u×]^2
 ```
 """
-function dcm_fromAxisAngle(u, θ)
-    ux = crossMat(normalize(u))
-    return I + sin(θ)*ux + (1 - cos(θ))*ux*ux
-end
-
-function dcm_fromAxisAngle(idx::Int, θ)
-    u = zeros(3); u[idx] = 1.0
-    return dcm_fromAxisAngle(u, θ)
-end
+dcm_fromAxisAngle(u, θ) = q_toDcm(q_fromAxisAngle(u, θ))
+dcm_fromAxisAngle(idx::Int, θ) = q_toDcm(q_fromAxisAngle(idx, θ))
 
 # θ = [θ_AB, θ_BC, θ_CD] --> R_AD
-function dcm_fromEuler(sequence::Vector{Int}, θ)
-    R = I
-    for i in eachindex(sequence)
-        R = R*dcm_fromAxisAngle(sequence[i], θ[i])
-    end
-    return R
-end
+dcm_fromEuler(θ, sequence::Vector{Int}=[3, 2, 1]) = q_toDcm(q_fromEuler(θ, sequence))
+dcm_toEuler(R, sequence::Vector{Int}=[3, 2, 1]) = q_toEuler(q_fromDcm(R), sequence)
 
 """
     q_AB = dcm_toQuaternion(R_AB)

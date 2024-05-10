@@ -21,7 +21,7 @@ export q_multiply, q_fromAxes, q_random, q_transformVector,
     q_interp, q_slerp
 include("q.jl")
 
-export dcm_random, dcm_fromAxisAngle, dcm_toQuaternion, dcm_fromQuaternion,
+export dcm_random, dcm_fromAxisAngle, dcm_toQuaternion, dcm_fromQuaternion, dcm_toEuler
     dcm_toRv, dcm_fromRv, dcm_fromEuler, dcm_fromAxes
 include("dcm.jl")
 
