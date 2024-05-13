@@ -12,7 +12,7 @@ Compute the cross product matrix of a vector ```v```.
 crossMat(v::Vector) = [0 -v[3] v[2]; v[3] 0 -v[1]; -v[2] v[1] 0]
 
 export crossMatInv
-crossMatInv(M::Matrix) = [-M[2,3]; M[1, 3]; -M[1, 2]]
+crossMatInv(M::Matrix) = [-M[2, 3]; M[1, 3]; -M[1, 2]]
 
 export q_multiply, q_fromAxes, q_random, q_transformVector,
     q_transpose, q_fromDcm, q_derivative, q_multiplyn,
@@ -21,7 +21,7 @@ export q_multiply, q_fromAxes, q_random, q_transformVector,
     q_interp, q_slerp
 include("q.jl")
 
-export dcm_random, dcm_fromAxisAngle, dcm_toQuaternion, dcm_fromQuaternion, dcm_toEuler
+export dcm_random, dcm_fromAxisAngle, dcm_toQuaternion, dcm_fromQuaternion, dcm_toEuler,
     dcm_toRv, dcm_fromRv, dcm_fromEuler, dcm_fromAxes
 include("dcm.jl")
 
