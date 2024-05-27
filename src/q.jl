@@ -143,6 +143,12 @@ Compute the unitary quaternion given as input an axis-angle representation.
 q_fromAxisAngle(u, θ) = [cos(0.5θ); sin(0.5θ)*normalize(u)]
 q_fromAxisAngle(idx::Int, θ) = q_fromAxisAngle(Float64.([idx==1; idx==2; idx==3]), θ)
 
+function q_toAxisAngle(q)
+    nqv = norm(q[2:4])
+    θ = 2atan(nqv, q[1])
+    return q[2:4]./nqv, θ
+end
+
 function q_toAxes(q_AB)
     q_BA = q_transpose(q_AB)
     xB_A = q_transformVector(q_BA,[1.0; 0.0; 0.0])
@@ -245,3 +251,6 @@ function q_interp(t, q, ti)
     id1 = min(id0+1, length(t))
     return q_slerp(q[id0], q[id1], (ti - t[id0])/(t[id1] - t[id0]))
 end
+
+# e.g., qNominal = qDes, q = qEst
+q_attitudeError(qNominal, q) = 2q_multiply(q_transpose(q), qNominal)[2:4]
