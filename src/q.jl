@@ -133,7 +133,7 @@ q̇_{AB} = \\frac{1}{2} q_{AB} ⊗ [0; ω^B_{AB}]
 where ```ωAB_B``` represents the angular velocity of frame ``B`` with respect to
 frame ``A``, projected into frame ``B``.
 """
-q_derivative(q_AB, ωAB_B) = q_multiply(q_AB,[0.0; 0.5.*ωAB_B])  # dq_BA
+q_derivative(q_AB, ωAB_B) = q_multiply(q_AB, [0.0; 0.5.*ωAB_B])  # dq_BA
 
 """
     q_AB = q_fromAxisAngle(u, θ_AB)
