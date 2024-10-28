@@ -253,4 +253,8 @@ function q_interp(t, q, ti)
 end
 
 # e.g., qNominal = qDes, q = qEst
-q_attitudeError(qNominal, q) = 2q_multiply(q_transpose(q), qNominal)[2:4]
+function q_attitudeError(qNominal, q)
+    imax = findmax(abs.(qNominal))[2]
+    sgn = sign(qNominal[imax]) == sign(q[imax]) ? 1.0 : -1.0
+    return 2q_multiply(q_transpose(sgn*q), qNominal)[2:4]
+end
