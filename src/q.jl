@@ -13,7 +13,7 @@ function q_multiply(q_AB, q_BC)
 end
 
 """
-    q = q_multiplyn(q1,q2,q3,...)
+    q = q_multiplyn(q1, q2, q3, ...)
 
 ```math
     q = q₁ ⊗ q₂ ⊗ q₃ ⊗ ...
@@ -22,7 +22,7 @@ end
 function q_multiplyn(q...)
     qOut = q[1]
     for i in 2:lastindex(q)
-        qOut = q_multiply(qOut,q[i])
+        qOut = q_multiply(qOut, q[i])
     end
 
     return qOut

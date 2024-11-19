@@ -14,10 +14,16 @@ R_{AB}(θ_{AB}) = I + \\sin(θ_{AB})[u×] + (1 - \\cos(θ_{AB}))[u×]^2
 ```
 """
 dcm_fromAxisAngle(u, θ) = q_toDcm(q_fromAxisAngle(u, θ))
-dcm_fromAxisAngle(idx::Int, θ) = q_toDcm(q_fromAxisAngle(idx, θ))
+dcm_fromAxisAngle(idx::Int, θ) = dcm_fromEuler([θ], [idx])
 
 # θ = [θ_AB, θ_BC, θ_CD] --> R_AD
-dcm_fromEuler(θ, sequence::Vector{Int}=[3, 2, 1]) = q_toDcm(q_fromEuler(θ, sequence))
+function dcm_fromEuler(θ, sequence::Vector{Int}=[3, 2, 1])
+    R = dcm_rotAxis(θ[1], sequence[1])
+    for k in 2:lastindex(sequence)
+        R .= R*dcm_rotAxis(θ[k], sequence[k])
+    end
+    return R
+end
 dcm_toEuler(R, sequence::Vector{Int}=[3, 2, 1]) = q_toEuler(q_fromDcm(R), sequence)
 
 """
@@ -55,4 +61,15 @@ function dcm_fromAxes(xB_A, yB_A, zB_A)
     if isempty(zB_A); zB_A = xB_A × yB_A; end
 
     return [xB_A yB_A zB_A] # R_AB
+end
+
+# R_AB(θ_AB)
+function dcm_rotAxis(θ, axis::Int)
+    sθ, cθ = sincos(θ)
+    if axis == 1
+        return [1 0 0; 0 cθ -sθ; 0 sθ cθ]
+    elseif axis == 2
+        return [cθ 0 sθ; 0 1 0; -sθ 0 cθ]
+    end
+    return [cθ -sθ 0; sθ cθ 0; 0 0 1]
 end
