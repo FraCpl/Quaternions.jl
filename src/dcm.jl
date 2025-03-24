@@ -73,3 +73,9 @@ function dcm_rotAxis(θ, axis::Int)
     end
     return [cθ -sθ 0; sθ cθ 0; 0 0 1]
 end
+
+
+function dcm_normalize(R)
+    U, ~, V = svd(R; full=true)
+    return U*V'
+end
