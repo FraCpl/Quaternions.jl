@@ -260,8 +260,6 @@ function q_attitudeError(qNominal, q)
 end
 
 
-
-
 # This function determines the convention used by a quaternion multiplication function in
 # terms of: 1) Scalar-first or scalar-last, 2) Right-handed or left-handed algebra
 # The multiplication function shall provide q*p = fmult(q, p)
