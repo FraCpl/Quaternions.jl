@@ -195,23 +195,40 @@ end
 # 3(yaw)-2(pitch)-1(roll) sequence
 # CAUTION: Only [3, 2, 1] sequence is implemented for now
 function q_toEuler(q, sequence=[3, 2, 1])
+    qs, qx, qy, qz = q
 
-    # roll (x-axis rotation)
-    t1 = 2(q[1]*q[2] + q[3]*q[4])
-    t2 = +1 - 2(q[2]*q[2] + q[3]*q[3])
-    roll = atan(t1, t2)
+    if sequence == [3, 2, 1]
+        # roll (x-axis rotation)
+        t1 = 2(q0*qx + qy*qz)
+        t2 = +1 - 2(qx*qx + qy*qy)
+        roll = atan(t1, t2)
 
-    # pitch (y-axis rotation)
-    t3 = +2(q[1]*q[3] - q[4]*q[2])
-    t3 = max(-1,min(t3,1))
-    pitch = asin(t3)
+        # pitch (y-axis rotation)
+        t3 = +2(q0*qy - qz*qx)
+        t3 = max(-1.0, min(t3, 1.0))
+        pitch = asin(t3)
 
-    # yaw (z-axis rotation)
-    t4 = 2(q[1]*q[4] + q[2]*q[3])
-    t5 = +1 - 2(q[3]*q[3] + q[4]*q[4])
-    yaw = atan(t4, t5)
+        # yaw (z-axis rotation)
+        t4 = 2(q0*qz + qx*qy)
+        t5 = +1 - 2(qy*qy + qz*qz)
+        yaw = atan(t4, t5)
 
-    return [yaw; pitch; roll]
+        return [yaw; pitch; roll]
+
+    elseif sequence == [1, 2, 3]
+        sinPitch = 2(qx*qz + qy*qs)
+        mask = sinPitch ≥ 1 - 10*eps() || sinPitch ≤ -1 + 10*eps()
+        sinPitch = max(-1.0, min(sinPitch, 1.0))
+        pitch = asin(sinPitch)
+        if mask
+            roll = 0
+            yaw = sign(sinPitch)*2*atan(qx, qs)
+        else
+            roll = atan(-2(qy*qz - qx*qs), qs^2 - qx^2 - qy^2 + qz^2);
+            yaw = atan(-2(qx*qy - qz*qs), qs^2 + qx^2 - qy^2 - qz^2)
+        end
+        return [roll; pitch; yaw]
+    end
 end
 
 function q_fromEuler(θ, sequence=[3, 2, 1])
