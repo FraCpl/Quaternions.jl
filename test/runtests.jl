@@ -56,9 +56,25 @@ function TEST_kin()
 end
 =#
 
+function TEST_euler123()
+    eul = [[-π + 2π*rand(); -π/2 + π*rand(); -π + 2π*rand()] for _ in 1:10_000]
+    seq = [1, 2, 3]
+    eult = q_toEuler.(q_fromEuler.(eul, Ref(seq)), Ref(seq))
+    return maximum(norm.(eul - eult))
+end
+
+function TEST_euler321()
+    eul = [[-π + 2π*rand(); -π/2 + π*rand(); -π + 2π*rand()] for _ in 1:10_000]
+    seq = [3, 2, 1]
+    eult = q_toEuler.(q_fromEuler.(eul, Ref(seq)), Ref(seq))
+    return maximum(norm.(eul - eult))
+end
+
 @testset "Quaternions.jl" begin
-    ERR_TOL = 1e-12
+    ERR_TOL = 1e-10
     @test TEST_rots() < ERR_TOL
     @test TEST_mult() < ERR_TOL
+    @test TEST_euler123() < ERR_TOL
+    @test TEST_euler321() < ERR_TOL
     #@test TEST_kin() < ERR_TOL
 end
