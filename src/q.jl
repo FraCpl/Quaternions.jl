@@ -193,24 +193,24 @@ end
 
 # https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
 # 3(yaw)-2(pitch)-1(roll) sequence
-# CAUTION: Only [3, 2, 1] sequence is implemented for now
+# CAUTION: Only [3, 2, 1] and [1, 2, 3] sequencs are implemented for now
 function q_toEuler(q, sequence=[3, 2, 1])
     qs, qx, qy, qz = q
 
     if sequence == [3, 2, 1]
         # roll (x-axis rotation)
         t1 = 2(qs*qx + qy*qz)
-        t2 = +1 - 2(qx*qx + qy*qy)
+        t2 = 1 - 2(qx*qx + qy*qy)
         roll = atan(t1, t2)
 
         # pitch (y-axis rotation)
-        t3 = +2(qs*qy - qz*qx)
+        t3 = 2(qs*qy - qz*qx)
         t3 = max(-1.0, min(t3, 1.0))
         pitch = asin(t3)
 
         # yaw (z-axis rotation)
         t4 = 2(qs*qz + qx*qy)
-        t5 = +1 - 2(qy*qy + qz*qz)
+        t5 = 1 - 2(qy*qy + qz*qz)
         yaw = atan(t4, t5)
 
         return [yaw; pitch; roll]
