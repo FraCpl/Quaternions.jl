@@ -3,7 +3,7 @@
 
 Generate a random transformation matrix.
 """
-dcm_random() = q_toDcm(q_random())
+@inline dcm_random() = q_toDcm(q_random())
 
 """
     R_AB = dcm_fromAxisAngle(u, θ_AB)
@@ -13,8 +13,8 @@ Compute the transformation matrix given the axis and angle.
 R_{AB}(θ_{AB}) = I + \\sin(θ_{AB})[u×] + (1 - \\cos(θ_{AB}))[u×]^2
 ```
 """
-dcm_fromAxisAngle(u, θ) = q_toDcm(q_fromAxisAngle(u, θ))
-dcm_fromAxisAngle(idx::Int, θ) = dcm_fromEuler([θ], [idx])
+@inline dcm_fromAxisAngle(u, θ) = q_toDcm(q_fromAxisAngle(u, θ))
+@inline dcm_fromAxisAngle(idx::Int, θ) = dcm_fromEuler([θ], [idx])
 
 # θ = [θ_AB, θ_BC, θ_CD] --> R_AD
 function dcm_fromEuler(θ, sequence::Vector{Int}=[3, 2, 1])
@@ -24,21 +24,21 @@ function dcm_fromEuler(θ, sequence::Vector{Int}=[3, 2, 1])
     end
     return R
 end
-dcm_toEuler(R, sequence::Vector{Int}=[3, 2, 1]) = q_toEuler(q_fromDcm(R), sequence)
+@inline dcm_toEuler(R, sequence::Vector{Int}=[3, 2, 1]) = q_toEuler(q_fromDcm(R), sequence)
 
 """
     q_AB = dcm_toQuaternion(R_AB)
 
 Translate a transformation matrix into a quaternion.
 """
-dcm_toQuaternion(R::Matrix) = q_fromDcm(R)
+@inline dcm_toQuaternion(R::Matrix) = q_fromDcm(R)
 
 """
     R_AB = dcm_fromQuaternion(q_AB)
 
 Compute a transformation matrix from a quaternion.
 """
-dcm_fromQuaternion(q) = q_toDcm(q)
+@inline dcm_fromQuaternion(q) = q_toDcm(q)
 
 function dcm_fromRv(ϕ)
     θ = norm(ϕ)
@@ -48,14 +48,14 @@ function dcm_fromRv(ϕ)
     return dcm_fromAxisAngle(ϕ, θ)
 end
 
-dcm_toRv(R::Matrix) = q_toRv(dcm_toQuaternion(R))
+@inline dcm_toRv(R::Matrix) = q_toRv(dcm_toQuaternion(R))
 
 """
     R_AB = dcm_fromAxes(xB_A, yB_A, zB_A)
 
 Compute the transformation matrix given as input the axes of a reference frame.
 """
-function dcm_fromAxes(xB_A, yB_A, zB_A)
+@inline function dcm_fromAxes(xB_A, yB_A, zB_A)
     if isempty(xB_A); xB_A = yB_A × zB_A; end
     if isempty(yB_A); yB_A = zB_A × xB_A; end
     if isempty(zB_A); zB_A = xB_A × yB_A; end
@@ -64,7 +64,7 @@ function dcm_fromAxes(xB_A, yB_A, zB_A)
 end
 
 # R_AB(θ_AB)
-function dcm_rotAxis(θ, axis::Int)
+@inline function dcm_rotAxis(θ, axis::Int)
     sθ, cθ = sincos(θ)
     if axis == 1
         return [1 0 0; 0 cθ -sθ; 0 sθ cθ]
@@ -75,7 +75,7 @@ function dcm_rotAxis(θ, axis::Int)
 end
 
 
-function dcm_normalize(R)
+@inline function dcm_normalize(R)
     U, ~, V = svd(R; full=true)
     return U*V'
 end

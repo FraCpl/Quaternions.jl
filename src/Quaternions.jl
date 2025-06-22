@@ -9,10 +9,11 @@ export crossMat
 
 Compute the cross product matrix of a vector ```v```.
 """
-crossMat(v) = [0 -v[3] v[2]; v[3] 0 -v[1]; -v[2] v[1] 0]
+@inline crossMat(v) = [0 -v[3] v[2]; v[3] 0 -v[1]; -v[2] v[1] 0]
+@inline crossMat(x, y, z) = [0 -z y; z 0 -x; -y x 0]
 
 export crossMatInv
-crossMatInv(M::Matrix) = [-M[2, 3]; M[1, 3]; -M[1, 2]]
+@inline crossMatInv(M::Matrix) = [-M[2, 3]; M[1, 3]; -M[1, 2]]
 
 export q_multiply, q_fromAxes, q_random, q_transformVector,
     q_transpose, q_fromDcm, q_derivative, q_multiplyn,

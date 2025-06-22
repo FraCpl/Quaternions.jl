@@ -6,7 +6,7 @@ Mutliply the two input quaternions as follows:
 q_{AC} = q_{AB} ⊗ q_{BC}
 ```
 """
-function q_multiply(q_AB, q_BC)
+@inline function q_multiply(q_AB, q_BC)
     ps = q_AB[1]; pv = q_AB[2:4]
     qs = q_BC[1]; qv = q_BC[2:4]
     return [ps*qs - (pv ⋅ qv); ps.*qv + qs.*pv + pv × qv]  # = q_AC = p x q, p = q_AB, q = q_BC
@@ -19,7 +19,7 @@ end
     q = q₁ ⊗ q₂ ⊗ q₃ ⊗ ...
 ```
 """
-function q_multiplyn(q...)
+@inline function q_multiplyn(q...)
     qOut = q[1]
     for i in 2:lastindex(q)
         qOut = q_multiply(qOut, q[i])
@@ -33,7 +33,7 @@ end
 
 Build a quaternion from its scalar and vectorial components.
 """
-q_build(qs, qv) = [qs; qv]
+@inline q_build(qs, qv) = [qs; qv]
 
 """
     R_AB = q_toDcm(q_AB)
@@ -43,7 +43,7 @@ Translate the input unitary quaternion into a transformation matrix.
 R_{AB}(q_{AB}) = I + 2qₛ[qᵥ×] + 2[qᵥ×]²
 ```
 """
-function q_toDcm(q)     # R_BA from q_BA
+@inline function q_toDcm(q)     # R_BA from q_BA
     qx = crossMat(q[2:4])
     return I + 2.0*(qx*qx + q[1].*qx)
 end
@@ -78,14 +78,14 @@ end
 
 Compute the attitude quaternion given as input the axes of a reference frame.
 """
-q_fromAxes(xB_A, yB_A, zB_A) = q_fromDcm(dcm_fromAxes(xB_A, yB_A, zB_A))
+@inline q_fromAxes(xB_A, yB_A, zB_A) = q_fromDcm(dcm_fromAxes(xB_A, yB_A, zB_A))
 
 """
     q_random()
 
 Generate a random unitary quaternion.
 """
-q_random() = normalize(randn(4))
+@inline q_random() = normalize(randn(4))
 
 """
     q_identity()
@@ -93,7 +93,7 @@ q_random() = normalize(randn(4))
 Get identity quaternion, with scalar component equal to 1 and
 vector components equal to zero.
 """
-q_identity() = [1.0; 0.0; 0.0; 0.0]
+@inline q_identity() = [1.0; 0.0; 0.0; 0.0]
 
 
 """
@@ -108,7 +108,7 @@ vᴬ = q_{AB} ⊗ vᴮ ⊗ q_{BA}
 In the formula above, 3D vectors are represented by quaternions having
 a null scalar component.
 """
-function q_transformVector(q_AB, v_B)
+@inline function q_transformVector(q_AB, v_B)
     qxv = q_AB[2:4] × v_B
     return v_B + 2.0*(q_AB[2:4] × qxv + q_AB[1].*qxv) # v_A
 end
@@ -118,7 +118,7 @@ end
 
 Transpose the input quaternion.
 """
-q_transpose(q) = [q[1]; -q[2:4]]
+@inline q_transpose(q) = [q[1]; -q[2:4]]
 
 """
     q̇_AB = q_derivative(q_AB, ωAB_B)
@@ -133,23 +133,23 @@ q̇_{AB} = \\frac{1}{2} q_{AB} ⊗ [0; ω^B_{AB}]
 where ```ωAB_B``` represents the angular velocity of frame ``B`` with respect to
 frame ``A``, projected into frame ``B``.
 """
-q_derivative(q_AB, ωAB_B) = q_multiply(q_AB, [0.0; 0.5.*ωAB_B])  # dq_BA
+@inline q_derivative(q_AB, ωAB_B) = q_multiply(q_AB, [0.0; 0.5.*ωAB_B])  # dq_BA
 
 """
     q_AB = q_fromAxisAngle(u, θ_AB)
 
 Compute the unitary quaternion given as input an axis-angle representation.
 """
-q_fromAxisAngle(u, θ) = [cos(0.5θ); sin(0.5θ)*normalize(u)]
-q_fromAxisAngle(idx::Int, θ) = q_fromAxisAngle(Float64.([idx==1; idx==2; idx==3]), θ)
+@inline q_fromAxisAngle(u, θ) = [cos(0.5θ); sin(0.5θ)*normalize(u)]
+@inline q_fromAxisAngle(idx::Int, θ) = q_fromAxisAngle(Float64.([idx==1; idx==2; idx==3]), θ)
 
-function q_toAxisAngle(q)
+@inline function q_toAxisAngle(q)
     nqv = norm(q[2:4])
     θ = 2atan(nqv, q[1])
     return q[2:4]./nqv, θ
 end
 
-function q_toAxes(q_AB)
+@inline function q_toAxes(q_AB)
     q_BA = q_transpose(q_AB)
     xB_A = q_transformVector(q_BA,[1.0; 0.0; 0.0])
     yB_A = q_transformVector(q_BA,[0.0; 1.0; 0.0])
@@ -163,10 +163,10 @@ end
 
 Compute the inverse of the input quaternion.
 """
-q_inverse(q) = q_transpose(q)./(q ⋅ q)
+@inline q_inverse(q) = q_transpose(q)./(q ⋅ q)
 
 
-function q_toRv(q)
+@inline function q_toRv(q)
     nqv = norm(q[2:4])
     if nqv < 1e-10
         return zeros(3)
@@ -174,7 +174,7 @@ function q_toRv(q)
     return (2*atan(nqv, q[1])/nqv).*q[2:4]
 end
 
-q_fromRv(ϕ) = q_fromAxisAngle(ϕ, norm(ϕ))
+@inline q_fromRv(ϕ) = q_fromAxisAngle(ϕ, norm(ϕ))
 
 """
 This uses rotation vector to compute the average angular rate between two
@@ -185,7 +185,7 @@ angRate(t) = dtheta/dt for t in [t[k-1],t[k]]
 This means that angRate is the equivalent constant average rate that
 rotates q[k-1] into q[k].
 """
-@views function q_rate(t, q_AB)
+@inline @views function q_rate(t, q_AB)
     dt = diff(t)
     dq_AB = q_multiply.(q_transpose.(q_AB[1:end-1]), q_AB[2:end])
     return [q_toRv.(dq_AB)./dt; [zeros(3)]]    # angRateAB_B
@@ -270,7 +270,7 @@ function q_interp(t, q, ti)
 end
 
 # e.g., qNominal = qDes, q = qEst
-function q_attitudeError(qNominal, q)
+@inline function q_attitudeError(qNominal, q)
     imax = findmax(abs.(qNominal))[2]
     sgn = sign(qNominal[imax]) == sign(q[imax]) ? 1.0 : -1.0
     return 2q_multiply(q_transpose(sgn*q), qNominal)[2:4]
