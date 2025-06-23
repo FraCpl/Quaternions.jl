@@ -6,7 +6,7 @@ Mutliply the two input quaternions as follows:
 q_{AC} = q_{AB} ⊗ q_{BC}
 ```
 """
-@inline function q_multiply(q_AB, q_BC)
+@inline @views function q_multiply(q_AB, q_BC)
     ps = q_AB[1]; pv = q_AB[2:4]
     qs = q_BC[1]; qv = q_BC[2:4]
     return [ps*qs - (pv ⋅ qv); ps.*qv + qs.*pv + pv × qv]  # = q_AC = p x q, p = q_AB, q = q_BC
