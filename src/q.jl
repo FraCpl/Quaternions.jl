@@ -169,8 +169,8 @@ a null scalar component.
     # qxv = q_AB[2:4] × v_B
     # return v_B + 2.0*(q_AB[2:4] × qxv + q_AB[1].*qxv) # v_A
 
-    qs, qx, qy, qz = q_AB[1], q_AB[2], q_AB[3], q_AB[4]
-    x, y, z = v_B[1], v_B[2], v_B[3]
+    qs, qx, qy, qz = q_AB
+    x, y, z = v_B
 
     cx = qy*z - qz*y
     cy = qz*x - qx*z
@@ -230,18 +230,15 @@ Compute the unitary quaternion given as input an axis-angle representation.
 @inline q_fromAxisAngle(idx::Int, θ) = q_fromAxisAngle(Float64.([idx==1; idx==2; idx==3]), θ)
 
 @inline function q_toAxisAngle(q)
-    nqv = norm(q[2:4])
-    θ = 2atan(nqv, q[1])
-    return q[2:4]./nqv, θ
+    qs, qx, qy, qz = q
+    nqv = sqrt(qx*qx + qy*qy + qz*qz)
+    return [qx/nqv; qy/nqv; qz/nqv], 2atan(nqv, qs)
 end
 
-@inline function q_toAxes(q_AB)
-    q_BA = q_transpose(q_AB)
-    xB_A = q_transformVector(q_BA,[1.0; 0.0; 0.0])
-    yB_A = q_transformVector(q_BA,[0.0; 1.0; 0.0])
-    zB_A = q_transformVector(q_BA,[0.0; 0.0; 1.0])
 
-    return xB_A, yB_A, zB_A
+@inline function q_toAxes(q_AB)
+    R = q_toDcm(q_AB)
+    return R[1, :], R[2, :], R[3, :]    # xB_A, yB_A, zB_A
 end
 
 """
@@ -249,15 +246,15 @@ end
 
 Compute the inverse of the input quaternion.
 """
-@inline q_inverse(q) = q_transpose(q)./(q ⋅ q)
+@inline q_inverse(q) = q_transpose(q)./dot(q, q)
 
 
 @inline function q_toRv(q)
-    nqv = norm(q[2:4])
-    if nqv < 1e-10
-        return zeros(3)
-    end
-    return (2*atan(nqv, q[1])/nqv).*q[2:4]
+    qs, qx, qy, qz = q
+    nqv = sqrt(qx*qx + qy*qy + qz*qz)
+    if nqv < 1e-10; return zeros(3); end
+    nqv = 2atan(nqv, qs)/nqv
+    return [qx*nqv; qy*nqv; qz*nqv]
 end
 
 @inline q_fromRv(ϕ) = q_fromAxisAngle(ϕ, norm(ϕ))
