@@ -43,7 +43,7 @@ Translate the input unitary quaternion into a transformation matrix.
 R_{AB}(q_{AB}) = I + 2qₛ[qᵥ×] + 2[qᵥ×]²
 ```
 """
-@inline function q_toDcm(q)     # R_BA from q_BA
+@views @inline function q_toDcm(q)     # R_BA from q_BA
     qx = crossMat(q[2:4])
     return I + 2.0*(qx*qx + q[1].*qx)
 end
@@ -54,9 +54,9 @@ end
 Translate the input rotation matrix into a unitary quaternion.
 """
 function q_fromDcm(R_BA)
-    dcm11 = R_BA[1,1]; dcm12 = R_BA[2,1]; dcm13 = R_BA[3,1];
-    dcm21 = R_BA[1,2]; dcm22 = R_BA[2,2]; dcm23 = R_BA[3,2];
-    dcm31 = R_BA[1,3]; dcm32 = R_BA[2,3]; dcm33 = R_BA[3,3];
+    dcm11 = R_BA[1, 1]; dcm12 = R_BA[2, 1]; dcm13 = R_BA[3, 1];
+    dcm21 = R_BA[1, 2]; dcm22 = R_BA[2, 2]; dcm23 = R_BA[3, 2];
+    dcm31 = R_BA[1, 3]; dcm32 = R_BA[2, 3]; dcm33 = R_BA[3, 3];
 
     vv = 1.0 .+ [+dcm11-dcm22-dcm33; -dcm11+dcm22-dcm33; -dcm11-dcm22+dcm33; +dcm11+dcm22+dcm33]
     idx = argmax(vv);
