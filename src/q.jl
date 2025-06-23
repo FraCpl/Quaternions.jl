@@ -192,7 +192,7 @@ end
 
 Transpose the input quaternion.
 """
-@inline q_transpose(q) = [q[1]; -q[2:4]]
+@inline q_transpose(q) = [q[1]; -q[2]; -q[3]; -q[4]]
 
 """
     q̇_AB = q_derivative(q_AB, ωAB_B)
@@ -207,7 +207,19 @@ q̇_{AB} = \\frac{1}{2} q_{AB} ⊗ [0; ω^B_{AB}]
 where ```ωAB_B``` represents the angular velocity of frame ``B`` with respect to
 frame ``A``, projected into frame ``B``.
 """
-@inline q_derivative(q_AB, ωAB_B) = q_multiply(q_AB, [0.0; 0.5.*ωAB_B])  # dq_BA
+@inline function q_derivative(q_AB, ωAB_B)
+    # q_multiply(q_AB, [0.0; 0.5.*ωAB_B])  # dq_BA
+
+    ps, px, py, pz = q_AB
+    qx, qy, qz = ωAB_B
+
+    s = - px*qx - py*qy - pz*qz
+    x = + ps*qx - pz*qy + py*qz
+    y = + pz*qx + ps*qy - px*qz
+    z = - py*qx + px*qy + ps*qz
+
+    return [s/2; x/2; y/2; z/2] # dq_BA
+end
 
 """
     q_AB = q_fromAxisAngle(u, θ_AB)
