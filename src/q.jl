@@ -6,10 +6,19 @@ Mutliply the two input quaternions as follows:
 q_{AC} = q_{AB} ⊗ q_{BC}
 ```
 """
-@inline @views function q_multiply(q_AB, q_BC)
-    ps = q_AB[1]; pv = q_AB[2:4]
-    qs = q_BC[1]; qv = q_BC[2:4]
-    return [ps*qs - (pv ⋅ qv); ps.*qv + qs.*pv + pv × qv]  # = q_AC = p x q, p = q_AB, q = q_BC
+@inline function q_multiply(q_AB, q_BC)
+    # ps = q_AB[1]; pv = q_AB[2:4]
+    # qs = q_BC[1]; qv = q_BC[2:4]
+    # return [ps*qs - (pv ⋅ qv); ps.*qv + qs.*pv + pv × qv]  # = q_AC = p x q, p = q_AB, q = q_BC
+    ps, px, py, pz = q_AB
+    qs, qx, qy, qz = q_BC
+
+    s = ps*qs - px*qx - py*qy - pz*qz
+    x = px*qs + ps*qx - pz*qy + py*qz
+    y = py*qs + pz*qx + ps*qy - px*qz
+    z = pz*qs - py*qx + px*qy + ps*qz
+
+    return [s; x; y; z] # = q_AC = p x q, p = q_AB, q = q_BC
 end
 
 """
@@ -20,7 +29,7 @@ end
 ```
 """
 @inline function q_multiplyn(q...)
-    qOut = q[1]
+    qOut = copy(q[1])
     for i in 2:lastindex(q)
         qOut = q_multiply(qOut, q[i])
     end
@@ -44,33 +53,81 @@ R_{AB}(q_{AB}) = I + 2qₛ[qᵥ×] + 2[qᵥ×]²
 ```
 """
 @views @inline function q_toDcm(q)     # R_BA from q_BA
-    qx = crossMat(q[2:4])
-    return I + 2.0*(qx*qx + q[1].*qx)
+    # qx = crossMat(q[2:4])
+    # return I + 2.0*(qx*qx + q[1].*qx)
+    s, x, y, z = q[1], q[2], q[3], q[4]
+    x2, y2, z2 = x + x, y + y, z + z
+    sx, sy, sz = s*x2, s*y2, s*z2
+    xx, xy, xz = x*x2, x*y2, x*z2
+    yy, yz, zz = y*y2, y*z2, z*z2
+
+    R = Matrix{Float64}(undef, 3, 3)
+    R[1, 1] = 1.0 - (yy + zz)
+    R[1, 2] = xy - sz
+    R[1, 3] = xz + sy
+
+    R[2, 1] = xy + sz
+    R[2, 2] = 1.0 - (xx + zz)
+    R[2, 3] = yz - sx
+
+    R[3, 1] = xz - sy
+    R[3, 2] = yz + sx
+    R[3, 3] = 1.0 - (xx + yy)
+
+    return R
 end
+
 
 """
     q_AB = q_fromDcm(R_AB)
 
 Translate the input rotation matrix into a unitary quaternion.
 """
-function q_fromDcm(R_BA)
-    dcm11 = R_BA[1, 1]; dcm12 = R_BA[2, 1]; dcm13 = R_BA[3, 1];
-    dcm21 = R_BA[1, 2]; dcm22 = R_BA[2, 2]; dcm23 = R_BA[3, 2];
-    dcm31 = R_BA[1, 3]; dcm32 = R_BA[2, 3]; dcm33 = R_BA[3, 3];
+@inline function q_fromDcm(R_BA)
+    # dcm11 = R_BA[1, 1]; dcm12 = R_BA[2, 1]; dcm13 = R_BA[3, 1];
+    # dcm21 = R_BA[1, 2]; dcm22 = R_BA[2, 2]; dcm23 = R_BA[3, 2];
+    # dcm31 = R_BA[1, 3]; dcm32 = R_BA[2, 3]; dcm33 = R_BA[3, 3];
 
-    vv = 1.0 .+ [+dcm11-dcm22-dcm33; -dcm11+dcm22-dcm33; -dcm11-dcm22+dcm33; +dcm11+dcm22+dcm33]
-    idx = argmax(vv);
-    qx = 0.5*sqrt(abs(vv[idx]))
-    f  = 0.25/qx;
+    # vv = 1.0 .+ [+dcm11-dcm22-dcm33; -dcm11+dcm22-dcm33; -dcm11-dcm22+dcm33; +dcm11+dcm22+dcm33]
+    # idx = argmax(vv);
+    # qx = 0.5*sqrt(abs(vv[idx]))
+    # f  = 0.25/qx;
+
+    # if idx == 1
+    #     return [f*(dcm23 - dcm32); qx; f*(dcm12 + dcm21);  f*(dcm31 + dcm13)]
+    # elseif idx == 2
+    #     return [f*(dcm31 - dcm13); f*(dcm12 + dcm21); qx; f*(dcm23 + dcm32)]
+    # elseif idx == 3
+    #     return [f*(dcm12 - dcm21); f*(dcm31 + dcm13); f*(dcm23 + dcm32); qx]
+    # end
+    # return [qx; f*(dcm23 - dcm32); f*(dcm31 - dcm13); f*(dcm12 - dcm21)]
+
+    r11, r21, r31 = R_BA[1, 1], R_BA[1, 2], R_BA[1, 3]
+    r12, r22, r32 = R_BA[2, 1], R_BA[2, 2], R_BA[2, 3]
+    r13, r23, r33 = R_BA[3, 1], R_BA[3, 2], R_BA[3, 3]
+
+    vmax = 1 + r11 - r22 - r33
+    v2 = 1 - r11 + r22 - r33
+    v3 = 1 - r11 - r22 + r33
+    v4 = 1 + r11 + r22 + r33
+
+    idx = 1
+    if v2 > vmax; idx = 2; vmax = v2; end
+    if v3 > vmax; idx = 3; vmax = v3; end
+    if v4 > vmax; idx = 4; vmax = v4; end
+
+    qx = 0.5*sqrt(abs(vmax))
+    f = 0.25/qx
 
     if idx == 1
-        return [f*(dcm23 - dcm32); qx; f*(dcm12 + dcm21);  f*(dcm31 + dcm13)]
+        return [f*(r23 - r32), qx, f*(r12 + r21), f*(r31 + r13)]
     elseif idx == 2
-        return [f*(dcm31 - dcm13); f*(dcm12 + dcm21); qx; f*(dcm23 + dcm32)]
+        return [f*(r31 - r13), f*(r12 + r21), qx, f*(r23 + r32)]
     elseif idx == 3
-        return [f*(dcm12 - dcm21); f*(dcm31 + dcm13); f*(dcm23 + dcm32); qx]
+        return [f*(r12 - r21), f*(r31 + r13), f*(r23 + r32), qx]
+    else
+        return [qx, f*(r23 - r32), f*(r31 - r13), f*(r12 - r21)]
     end
-    return [qx; f*(dcm23 - dcm32); f*(dcm31 - dcm13); f*(dcm12 - dcm21)]
 end
 
 """
@@ -109,8 +166,25 @@ In the formula above, 3D vectors are represented by quaternions having
 a null scalar component.
 """
 @inline function q_transformVector(q_AB, v_B)
-    qxv = q_AB[2:4] × v_B
-    return v_B + 2.0*(q_AB[2:4] × qxv + q_AB[1].*qxv) # v_A
+    # qxv = q_AB[2:4] × v_B
+    # return v_B + 2.0*(q_AB[2:4] × qxv + q_AB[1].*qxv) # v_A
+
+    qs, qx, qy, qz = q_AB[1], q_AB[2], q_AB[3], q_AB[4]
+    x, y, z = v_B[1], v_B[2], v_B[3]
+
+    cx = qy*z - qz*y
+    cy = qz*x - qx*z
+    cz = qx*y - qy*x
+
+    c2x = qy*cz - qz*cy
+    c2y = qz*cx - qx*cz
+    c2z = qx*cy - qy*cx
+
+    rx = x + 2(c2x + qs*cx)
+    ry = y + 2(c2y + qs*cy)
+    rz = z + 2(c2z + qs*cz)
+
+    return [rx, ry, rz] # v_A
 end
 
 """

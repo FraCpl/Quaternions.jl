@@ -9,7 +9,7 @@ function TEST_rots()
     q_BA = q_fromDcm.(R_BA)
     q_AB = q_transpose.(q_BA)
     v1_B = [R_BA[i]*v_A[i] for i in 1:N]
-    v2_B = q_transformVector.(q_BA,v_A)
+    v2_B = q_transformVector.(q_BA, v_A)
     vq3_B = q_multiply.(q_BA,q_multiply.(vq_A,q_AB))
     v3_B = [vq3_B[i][2:4] for i in 1:N]
 
