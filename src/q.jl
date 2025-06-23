@@ -55,7 +55,7 @@ R_{AB}(q_{AB}) = I + 2qₛ[qᵥ×] + 2[qᵥ×]²
 @views @inline function q_toDcm(q)     # R_BA from q_BA
     # qx = crossMat(q[2:4])
     # return I + 2.0*(qx*qx + q[1].*qx)
-    s, x, y, z = q[1], q[2], q[3], q[4]
+    s, x, y, z = q
     x2, y2, z2 = x + x, y + y, z + z
     sx, sy, sz = s*x2, s*y2, s*z2
     xx, xy, xz = x*x2, x*y2, x*z2
@@ -227,7 +227,13 @@ end
 Compute the unitary quaternion given as input an axis-angle representation.
 """
 @inline q_fromAxisAngle(u, θ) = [cos(0.5θ); sin(0.5θ)*normalize(u)]
-@inline q_fromAxisAngle(idx::Int, θ) = q_fromAxisAngle(Float64.([idx==1; idx==2; idx==3]), θ)
+
+@inline function q_fromAxisAngle(idx::Int, θ)
+    sθ, cθ = sincos(θ/2)
+    q = [cθ; 0.0; 0.0; 0.0]
+    q[idx+1] = sθ
+    return q
+end
 
 @inline function q_toAxisAngle(q)
     qs, qx, qy, qz = q
@@ -246,7 +252,11 @@ end
 
 Compute the inverse of the input quaternion.
 """
-@inline q_inverse(q) = q_transpose(q)./dot(q, q)
+@inline function q_inverse(q)
+    qs, qx, qy, qz = q
+    nq2 = qs*qs + qx*qx + qy*qy + qz*qz
+    return [qs/nq2; -qx/nq2; -qy/nq2; -qz/nq2]
+end
 
 
 @inline function q_toRv(q)
@@ -314,7 +324,7 @@ function q_toEuler(q, sequence=[3, 2, 1])
     end
 end
 
-function q_fromEuler(θ, sequence=[3, 2, 1])
+@inline function q_fromEuler(θ, sequence=[3, 2, 1])
     q = q_fromAxisAngle(sequence[1], θ[1])
     for i in 2:lastindex(θ)
         q .= q_multiply(q, q_fromAxisAngle(sequence[i], θ[i]))
@@ -322,31 +332,35 @@ function q_fromEuler(θ, sequence=[3, 2, 1])
     return q
 end
 
-function q_exp(q)
-    qvn = norm(q[2:4])
+@inline function q_exp(q)
+    qs, qx, qy, qz = q
+    qvn = sqrt(qx*qx + qy*qy + qz*qz)
     qvnn = qvn
     if qvnn == 0.0
         qvnn = 1.0
     end
-    qv = q[2:4]./qvnn
-    return exp(q[1]).*[cos(qvn); qv.*sin(qvn)]
+    k = exp(qs)
+    qvnn = k*sin(qvn)/qvnn
+    return [k*cos(qvn); qx*qvnn; qy*qvnn; qy*qvnn]
 end
 
-function q_log(q)
-    vNorm = norm(q[2:4])
+@inline function q_log(q)
+    qs, qx, qy, qz = q
+    vNorm = sqrt(qx*qx + qy*qy + qz*qz)
     if vNorm == 0.0
         vNorm = 1.0
     end
     nq = norm(q)
-    return [log(nq); q[2:4]/vNorm.*acos(q[1]/nq)]
+    vNorm = acos(qs/nq)/vNorm
+    return [log(nq); qx*vNorm; qy*vNorm; qz*vNorm]
 end
 
-q_power(q, n) = q_exp(n.*q_log(q))
+@inline q_power(q, n) = q_exp(n.*q_log(q))
 
 # τ in [0, 1]
-q_slerp(q0, q1, τ) = q_multiply(q0, q_power(q_multiply(q_transpose(q0), q1), τ))
+@inline q_slerp(q0, q1, τ) = q_multiply(q0, q_power(q_multiply(q_transpose(q0), q1), τ))
 
-function q_interp(t, q, ti)
+@inline function q_interp(t, q, ti)
     id0 = findlast(ti .≥ t)
     id1 = min(id0+1, length(t))
     return q_slerp(q[id0], q[id1], (ti - t[id0])/(t[id1] - t[id0]))
