@@ -33,7 +33,7 @@ export q_multiply, q_fromAxes, q_random, q_transformVector,
     q_fromAxisAngle, q_toAxes, q_toDcm, q_inverse, q_build,
     q_identity, q_toRv, q_fromRv, q_rate, q_toEuler, q_fromEuler,
     q_interp, q_slerp, q_toAxisAngle, q_attitudeError, q_testConvention,
-    q_derivative!, q_transpose!, q_transformVector!
+    q_derivative!, q_transpose!, q_transformVector!, q_multiply!, q_toDcm!, q_fromDcm!
 include("q.jl")
 
 export dcm_random, dcm_fromAxisAngle, dcm_toQuaternion, dcm_fromQuaternion, dcm_toEuler,

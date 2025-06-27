@@ -7,18 +7,24 @@ q_{AC} = q_{AB} ⊗ q_{BC}
 ```
 """
 @inline function q_multiply(q_AB, q_BC)
+    q_AC = similar(q_AB)
+    q_multiply!(q_AC, q_AB, q_BC)
+    return q_AC
+end
+
+@inline function q_multiply!(q_AC, q_AB, q_BC)
     # ps = q_AB[1]; pv = q_AB[2:4]
     # qs = q_BC[1]; qv = q_BC[2:4]
     # return [ps*qs - (pv ⋅ qv); ps.*qv + qs.*pv + pv × qv]  # = q_AC = p x q, p = q_AB, q = q_BC
     ps, px, py, pz = q_AB
     qs, qx, qy, qz = q_BC
 
-    s = ps*qs - px*qx - py*qy - pz*qz
-    x = px*qs + ps*qx - pz*qy + py*qz
-    y = py*qs + pz*qx + ps*qy - px*qz
-    z = pz*qs - py*qx + px*qy + ps*qz
+    q_AC[1] = ps*qs - px*qx - py*qy - pz*qz
+    q_AC[2] = px*qs + ps*qx - pz*qy + py*qz
+    q_AC[3] = py*qs + pz*qx + ps*qy - px*qz
+    q_AC[4] = pz*qs - py*qx + px*qy + ps*qz
 
-    return [s; x; y; z] # = q_AC = p x q, p = q_AB, q = q_BC
+    return  # = q_AC = p x q, p = q_AB, q = q_BC
 end
 
 """
@@ -52,7 +58,13 @@ Translate the input unitary quaternion into a transformation matrix.
 R_{AB}(q_{AB}) = I + 2qₛ[qᵥ×] + 2[qᵥ×]²
 ```
 """
-@views @inline function q_toDcm(q)     # R_BA from q_BA
+@inline function q_toDcm(q)
+    R_BA = Matrix{Float64}(undef, 3, 3)
+    q_toDcm!(R_BA, q)
+    return R_BA
+end
+
+@views @inline function q_toDcm!(R, q)     # R_BA from q_BA
     # qx = crossMat(q[2:4])
     # return I + 2.0*(qx*qx + q[1].*qx)
     s, x, y, z = q
@@ -61,7 +73,6 @@ R_{AB}(q_{AB}) = I + 2qₛ[qᵥ×] + 2[qᵥ×]²
     xx, xy, xz = x*x2, x*y2, x*z2
     yy, yz, zz = y*y2, y*z2, z*z2
 
-    R = Matrix{Float64}(undef, 3, 3)
     R[1, 1] = 1.0 - (yy + zz)
     R[1, 2] = xy - sz
     R[1, 3] = xz + sy
@@ -74,7 +85,7 @@ R_{AB}(q_{AB}) = I + 2qₛ[qᵥ×] + 2[qᵥ×]²
     R[3, 2] = yz + sx
     R[3, 3] = 1.0 - (xx + yy)
 
-    return R
+    return
 end
 
 
@@ -84,6 +95,12 @@ end
 Translate the input rotation matrix into a unitary quaternion.
 """
 @inline function q_fromDcm(R_BA)
+    q_BA = Vector{eltype(R_BA)}(undef, 4)
+    q_fromDcm!(q_BA, R_BA)
+    return q_BA
+end
+
+@inline function q_fromDcm!(q, R_BA)
     # dcm11 = R_BA[1, 1]; dcm12 = R_BA[2, 1]; dcm13 = R_BA[3, 1];
     # dcm21 = R_BA[1, 2]; dcm22 = R_BA[2, 2]; dcm23 = R_BA[3, 2];
     # dcm31 = R_BA[1, 3]; dcm32 = R_BA[2, 3]; dcm33 = R_BA[3, 3];
@@ -120,14 +137,15 @@ Translate the input rotation matrix into a unitary quaternion.
     f = 0.25/qx
 
     if idx == 1
-        return [f*(r23 - r32), qx, f*(r12 + r21), f*(r31 + r13)]
+        q[1] = f*(r23 - r32); q[2] = qx; q[3] = f*(r12 + r21); q[4] = f*(r31 + r13)
     elseif idx == 2
-        return [f*(r31 - r13), f*(r12 + r21), qx, f*(r23 + r32)]
+        q[1] = f*(r31 - r13); q[2] = f*(r12 + r21); q[3] = qx; q[4] = f*(r23 + r32)
     elseif idx == 3
-        return [f*(r12 - r21), f*(r31 + r13), f*(r23 + r32), qx]
+        q[1] = f*(r12 - r21); q[2] = f*(r31 + r13); q[3] = f*(r23 + r32); q[4] = qx
     else
-        return [qx, f*(r23 - r32), f*(r31 - r13), f*(r12 - r21)]
+        q[1] = qx; q[2] = f*(r23 - r32); q[3] = f*(r31 - r13); q[4] = f*(r12 - r21)
     end
+    return
 end
 
 """
