@@ -216,7 +216,7 @@ end
 
 Transpose the input quaternion.
 """
-@inline function q_tranpose!(q)
+@inline function q_transpose!(q)
     @inbounds for i in 2:4; q[i] = -q[i]; end
     return
 end
@@ -247,10 +247,10 @@ end
     ps, px, py, pz = q_AB
     qx, qy, qz = ωAB_B
 
-    dq_AB[1] = - px*qx - py*qy - pz*qz
-    dq_AB[2] = + ps*qx - pz*qy + py*qz
-    dq_AB[3] = + pz*qx + ps*qy - px*qz
-    dq_AB[4] = - py*qx + px*qy + ps*qz
+    dq_AB[1] = (- px*qx - py*qy - pz*qz)/2
+    dq_AB[2] = (+ ps*qx - pz*qy + py*qz)/2
+    dq_AB[3] = (+ pz*qx + ps*qy - px*qz)/2
+    dq_AB[4] = (- py*qx + px*qy + ps*qz)/2
 
     return
 end
