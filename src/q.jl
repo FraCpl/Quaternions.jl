@@ -166,6 +166,12 @@ In the formula above, 3D vectors are represented by quaternions having
 a null scalar component.
 """
 @inline function q_transformVector(q_AB, v_B)
+    v_A = similar(v_B)
+    q_transformVector!(v_A, q_AB, v_B)
+    return v_A
+end
+
+@inline function q_transformVector!(v_A, q_AB, v_B)
     # qxv = q_AB[2:4] × v_B
     # return v_B + 2.0*(q_AB[2:4] × qxv + q_AB[1].*qxv) # v_A
 
@@ -180,11 +186,11 @@ a null scalar component.
     c2y = qz*cx - qx*cz
     c2z = qx*cy - qy*cx
 
-    rx = x + 2(c2x + qs*cx)
-    ry = y + 2(c2y + qs*cy)
-    rz = z + 2(c2z + qs*cz)
+    v_A[1] = x + 2(c2x + qs*cx)
+    v_A[2] = y + 2(c2y + qs*cy)
+    v_A[3] = z + 2(c2z + qs*cz)
 
-    return [rx, ry, rz] # v_A
+    return
 end
 
 """
@@ -192,6 +198,10 @@ end
 
 Transpose the input quaternion.
 """
+@inline function q_tranpose!(q)
+    @inbounds for i in 2:4; q[i] = -q[i]; end
+    return
+end
 @inline q_transpose(q) = [q[1]; -q[2]; -q[3]; -q[4]]
 
 """
@@ -208,17 +218,23 @@ where ```ωAB_B``` represents the angular velocity of frame ``B`` with respect t
 frame ``A``, projected into frame ``B``.
 """
 @inline function q_derivative(q_AB, ωAB_B)
+    dq_AB = similar(q_AB)
+    q_derivative!(dq_AB, q_AB, ωAB_B)
+    return dq_AB
+end
+
+@inline function q_derivative!(dq_AB, q_AB, ωAB_B)
     # q_multiply(q_AB, [0.0; 0.5.*ωAB_B])  # dq_BA
 
     ps, px, py, pz = q_AB
     qx, qy, qz = ωAB_B
 
-    s = - px*qx - py*qy - pz*qz
-    x = + ps*qx - pz*qy + py*qz
-    y = + pz*qx + ps*qy - px*qz
-    z = - py*qx + px*qy + ps*qz
+    dq_AB[1] = - px*qx - py*qy - pz*qz
+    dq_AB[2] = + ps*qx - pz*qy + py*qz
+    dq_AB[3] = + pz*qx + ps*qy - px*qz
+    dq_AB[4] = - py*qx + px*qy + ps*qz
 
-    return [s/2; x/2; y/2; z/2] # dq_BA
+    return
 end
 
 """
