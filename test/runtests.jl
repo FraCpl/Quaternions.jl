@@ -70,11 +70,23 @@ function TEST_euler321()
     return maximum(norm.(eul - eult))
 end
 
+function TEST_cross()
+    a = randn(3)
+    b = randn(3)
+    x = zeros(3)
+    @time cross!(x, a, b)
+    err1 = norm(x - cross(a, b))
+    @time crossSq!(x, a, b)
+    err2 = norm(x - cross(a, cross(a, b)))
+    return maximum([err1; err2])
+end
+
 @testset "Quaternions.jl" begin
     ERR_TOL = 1e-10
     @test TEST_rots() < ERR_TOL
     @test TEST_mult() < ERR_TOL
     @test TEST_euler123() < ERR_TOL
     @test TEST_euler321() < ERR_TOL
+    @test TEST_cross() < ERR_TOL
     #@test TEST_kin() < ERR_TOL
 end
