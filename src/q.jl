@@ -318,6 +318,14 @@ rotates q[k-1] into q[k].
     return [q_toRv.(dq_AB)./dt; [zeros(3)]]    # angRateAB_B
 end
 
+# Δt = t2 - t1
+# q1_AB = q_AB[t1]
+# q2_AB = q_AB[t2]
+@inline @views function q_rate(Δt, q1_AB, q2_AB)
+    dq_AB = q_multiply(q_transpose(q1_AB), q2_AB)
+    return q_toRv(dq_AB)/Δt
+end
+
 # https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
 # 3(yaw)-2(pitch)-1(roll) sequence
 # CAUTION: Only [3, 2, 1] and [1, 2, 3] sequencs are implemented for now
