@@ -86,8 +86,8 @@ end
 # out = a + b × (b × c)
 function addCrossSq!(out, a, b, c)
     crossSq!(out, b, c)
-    out[1] = a[1]
-    out[2] = a[2]
-    out[3] = a[3]
+    out[1] += a[1]
+    out[2] += a[2]
+    out[3] += a[3]
     return
 end
