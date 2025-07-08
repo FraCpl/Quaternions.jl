@@ -221,6 +221,11 @@ Transpose the input quaternion.
     return
 end
 @inline q_transpose(q) = [q[1]; -q[2]; -q[3]; -q[4]]
+@inline function q_transpose!(qt, q)
+    qt[1] = q[1]
+    @inbounds for i in 2:4; qt[i] = -q[i]; end
+    return
+end
 
 """
     q̇_AB = q_derivative(q_AB, ωAB_B)
