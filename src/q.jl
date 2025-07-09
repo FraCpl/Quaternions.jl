@@ -415,9 +415,23 @@ end
 
 # e.g., qNominal = qDes, q = qEst
 @inline function q_attitudeError(qNominal, q)
-    imax = findmax(abs.(qNominal))[2]
-    sgn = sign(qNominal[imax]) == sign(q[imax]) ? 1.0 : -1.0
-    return 2q_multiply(q_transpose(sgn*q), qNominal)[2:4]
+    err = Vector{eltype(q)}(undef, 3)
+    q_attitudeError!(err, qNominal, q)
+    return err
+end
+
+@inline function q_attitudeError!(err, qNominal, q)
+    ps, px, py, pz = q
+    qs, qx, qy, qz = qNominal
+
+    imax = findmax(abs, qNominal)[2]
+    sgn = sign(qNominal[imax]) == sign(q[imax]) ? 2.0 : -2.0
+
+    err[1] = (-px*qs + ps*qx + pz*qy - py*qz)*sgn
+    err[2] = (-py*qs - pz*qx + ps*qy + px*qz)*sgn
+    err[3] = (-pz*qs + py*qx - px*qy + ps*qz)*sgn
+
+    return  # 2q_multiply(q_transpose(sgn*q), qNominal)[2:4]
 end
 
 
