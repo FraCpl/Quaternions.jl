@@ -434,6 +434,65 @@ end
     return  # 2q_multiply(q_transpose(sgn*q), qNominal)[2:4]
 end
 
+@inline function q_tox(q_AB)
+    out = Vector{eltype(q_AB)}(undef, 3)
+    q_tox!(out, q_AB)
+    return out
+end
+
+@inline function q_toy(q_AB)
+    out = Vector{eltype(q_AB)}(undef, 3)
+    q_toy!(out, q_AB)
+    return out
+end
+
+@inline function q_toz(q_AB)
+    out = Vector{eltype(q_AB)}(undef, 3)
+    q_toz!(out, q_AB)
+    return out
+end
+
+@inline function q_tox!(xB_A, q_AB)
+    qs, qx, qy, qz = q_AB
+
+    c2x = -qy*qy - qz*qz
+    c2y = qx*qy
+    c2z = qx*qz
+
+    xB_A[1] = 1.0 + 2*c2x
+    xB_A[2] = 2(c2y + qs*qz)
+    xB_A[3] = 2(c2z - qs*qy)
+
+    return
+end
+
+@inline function q_toy!(yB_A, q_AB)
+    qs, qx, qy, qz = q_AB
+
+    c2x = qy*qx
+    c2y = -qz*qz - qx*qx
+    c2z = qy*qz
+
+    yB_A[1] = 2(c2x - qs*qz)
+    yB_A[2] = 1.0 + 2(c2y)
+    yB_A[3] = 2(c2z + qs*qx)
+
+    return
+end
+
+@inline function q_toz!(zB_A, q_AB)
+    qs, qx, qy, qz = q_AB
+
+    c2x = qz*qx
+    c2y = qz*qy
+    c2z = -qx*qx - qy*qy
+
+    zB_A[1] = 2(c2x + qs*qy)
+    zB_A[2] = 2(c2y - qs*qx)
+    zB_A[3] = 1.0 + 2(c2z)
+
+    return
+end
 
 # This function determines the convention used by a quaternion multiplication function in
 # terms of: 1) Scalar-first or scalar-last, 2) Right-handed or left-handed algebra

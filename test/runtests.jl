@@ -81,6 +81,14 @@ function TEST_cross()
     return maximum([err1; err2])
 end
 
+function TEST_qtoxyz()
+    q = q_random()
+    ex = norm(q_tox(q) - q_transformVector(q, [1.0; 0.0; 0.0]))
+    ey = norm(q_toy(q) - q_transformVector(q, [0.0; 1.0; 0.0]))
+    ez = norm(q_toz(q) - q_transformVector(q, [0.0; 0.0; 1.0]))
+    return maximum([ex; ey; ez])
+end
+
 @testset "Quaternions.jl" begin
     ERR_TOL = 1e-10
     @test TEST_rots() < ERR_TOL
@@ -89,4 +97,5 @@ end
     @test TEST_euler321() < ERR_TOL
     @test TEST_cross() < ERR_TOL
     #@test TEST_kin() < ERR_TOL
+    @test TEST_qtoxyz() < ERR_TOL
 end
