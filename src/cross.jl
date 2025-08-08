@@ -24,6 +24,16 @@ end
     return
 end
 
+@inline function crossMat(v::SVector{3, T}) where T
+    return crossMatStatic(v[1], v[2], v[3])
+end
+
+@inline function crossMatStatic(x, y, z)
+    return @SMatrix [
+        0 -z y; z 0 -x; -y x 0
+    ]
+end
+
 @inline function crossMatSq(x, y, z)
     R = Matrix{typeof(x)}(undef, 3, 3)
     crossMatSq!(R, x, y, z)
@@ -47,13 +57,26 @@ end
     R[1, 3] = x*z
     R[2, 2] = -x*x - z*z
     R[2, 3] = y*z
+    R[3, 3] = -x*x - y*y
     R[2, 1] = R[1, 2]
     R[3, 1] = R[1, 3]
     R[3, 2] = R[2, 3]
     return
 end
 
+@inline function crossMatSq(v::SVector{3, T}) where T
+    x, y, z = v
+    return @SMatrix [
+        (-y*y - z*z) x*y x*z;
+        x*y (-x*x - z*z) y*z;
+        x*z y*z (-x*x - y*y)
+    ]
+end
+
 @inline crossMatInv(M::Matrix) = [-M[2, 3]; M[1, 3]; -M[1, 2]]
+@inline function crossMatInv(M::SMatrix{3, 3, T}) where T
+    return @SVector [-M[2, 3]; M[1, 3]; -M[1, 2]]
+end
 
 # a = b × c
 function cross!(a, b, c)

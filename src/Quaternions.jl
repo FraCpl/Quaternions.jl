@@ -2,9 +2,10 @@
 # European Space Agency, 2023
 module Quaternions
 using LinearAlgebra
+using StaticArrays
 
 export crossMat, crossMat!, crossMatInv, crossMatSq, crossMatSq!
-export cross!, crossSq!, addCross!, addCrossSq!
+export cross!, crossSq!, addCross!, addCrossSq!, crossMatStatic
 include("cross.jl")
 
 export q_multiply, q_fromAxes, q_random, q_transformVector,
@@ -15,6 +16,7 @@ export q_multiply, q_fromAxes, q_random, q_transformVector,
     q_derivative!, q_transpose!, q_transformVector!, q_multiply!, q_toDcm!, q_fromDcm!, q_attitudeError!,
     q_tox, q_tox!, q_toy, q_toy!, q_toz, q_toz!
 include("q.jl")
+include("q_static.jl")
 
 export dcm_random, dcm_fromAxisAngle, dcm_toQuaternion, dcm_fromQuaternion, dcm_toEuler,
     dcm_toRv, dcm_fromRv, dcm_fromEuler, dcm_fromAxes, dcm_rotAxis, dcm_normalize
