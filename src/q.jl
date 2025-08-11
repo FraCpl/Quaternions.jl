@@ -163,7 +163,7 @@ Compute the attitude quaternion given as input the axes of a reference frame.
 # @inline q_fromAxes(xB_A, yB_A, zB_A) = q_fromDcm(dcm_fromAxes(xB_A, yB_A, zB_A))
 
 @inline function q_fromAxes(xB_A, yB_A, zB_A)
-    q_AB = zeros(eltype(xB_A), 4)
+    q_AB = Vector{eltype(yB_A)}(undef, 4)
     q_fromAxes!(q_AB, xB_A, yB_A, zB_A)
     return q_AB
 end
