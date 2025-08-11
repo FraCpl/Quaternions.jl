@@ -41,7 +41,7 @@ end
 end
 
 @inline function crossMatSq(v)
-    R = Matrix{typeof(x)}(undef, 3, 3)
+    R = Matrix{typeof(v)}(undef, 3, 3)
     crossMatSq!(R, v[1], v[2], v[3])
     return R
 end

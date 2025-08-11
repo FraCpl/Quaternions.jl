@@ -94,13 +94,20 @@ end
 
 Translate the input rotation matrix into a unitary quaternion.
 """
-@inline function q_fromDcm(R_BA)
-    q_BA = Vector{eltype(R_BA)}(undef, 4)
-    q_fromDcm!(q_BA, R_BA)
-    return q_BA
+@inline function q_fromDcm(R_AB)
+    q_AB = Vector{eltype(R_AB)}(undef, 4)
+    q_fromDcm!(q_AB, R_AB)
+    return q_AB
 end
 
-@inline function q_fromDcm!(q, R_BA)
+@inline function q_fromDcm!(q_AB, R_AB)
+    r11, r21, r31 = R_AB[1, 1], R_AB[1, 2], R_AB[1, 3]
+    r12, r22, r32 = R_AB[2, 1], R_AB[2, 2], R_AB[2, 3]
+    r13, r23, r33 = R_AB[3, 1], R_AB[3, 2], R_AB[3, 3]
+    q_fromDcmCore!(q_AB, r11, r12, r13, r21, r22, r23, r31, r32, r33)
+end
+
+@inline function q_fromDcmCore!(q, r11, r12, r13, r21, r22, r23, r31, r32, r33)
     # dcm11 = R_BA[1, 1]; dcm12 = R_BA[2, 1]; dcm13 = R_BA[3, 1];
     # dcm21 = R_BA[1, 2]; dcm22 = R_BA[2, 2]; dcm23 = R_BA[3, 2];
     # dcm31 = R_BA[1, 3]; dcm32 = R_BA[2, 3]; dcm33 = R_BA[3, 3];
@@ -119,9 +126,9 @@ end
     # end
     # return [qx; f*(dcm23 - dcm32); f*(dcm31 - dcm13); f*(dcm12 - dcm21)]
 
-    r11, r21, r31 = R_BA[1, 1], R_BA[1, 2], R_BA[1, 3]
-    r12, r22, r32 = R_BA[2, 1], R_BA[2, 2], R_BA[2, 3]
-    r13, r23, r33 = R_BA[3, 1], R_BA[3, 2], R_BA[3, 3]
+    # r11, r21, r31 = R_BA[1, 1], R_BA[1, 2], R_BA[1, 3]
+    # r12, r22, r32 = R_BA[2, 1], R_BA[2, 2], R_BA[2, 3]
+    # r13, r23, r33 = R_BA[3, 1], R_BA[3, 2], R_BA[3, 3]
 
     vmax = 1 + r11 - r22 - r33
     v2 = 1 - r11 + r22 - r33
@@ -153,7 +160,20 @@ end
 
 Compute the attitude quaternion given as input the axes of a reference frame.
 """
-@inline q_fromAxes(xB_A, yB_A, zB_A) = q_fromDcm(dcm_fromAxes(xB_A, yB_A, zB_A))
+# @inline q_fromAxes(xB_A, yB_A, zB_A) = q_fromDcm(dcm_fromAxes(xB_A, yB_A, zB_A))
+
+@inline function q_fromAxes(xB_A, yB_A, zB_A)
+    q_AB = zeros(eltype(xB_A), 4)
+    q_fromAxes!(q_AB, xB_A, yB_A, zB_A)
+    return q_AB
+end
+
+@inline function q_fromAxes!(q_AB, xB_A, yB_A, zB_A)
+    r11, r12, r13 = xB_A
+    r21, r22, r23 = yB_A
+    r31, r32, r33 = zB_A
+    q_fromDcmCore!(q_AB, r11, r12, r13, r21, r22, r23, r31, r32, r33)
+end
 
 """
     q_random()
