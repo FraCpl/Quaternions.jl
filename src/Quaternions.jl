@@ -5,7 +5,7 @@ using LinearAlgebra
 using StaticArrays
 
 export crossMat, crossMat!, crossMatInv, crossMatSq, crossMatSq!
-export cross!, crossSq!, addCross!, addCrossSq!, crossMatStatic
+export cross!, crossSq!, addCross!, addCrossSq!, crossMatStatic, crossMatSqStatic
 include("cross.jl")
 
 export q_multiply, q_fromAxes, q_random, q_transformVector,
@@ -14,7 +14,7 @@ export q_multiply, q_fromAxes, q_random, q_transformVector,
     q_identity, q_toRv, q_fromRv, q_rate, q_toEuler, q_fromEuler,
     q_interp, q_slerp, q_toAxisAngle, q_attitudeError, q_testConvention,
     q_derivative!, q_transpose!, q_transformVector!, q_multiply!, q_toDcm!, q_fromDcm!, q_attitudeError!,
-    q_tox, q_tox!, q_toy, q_toy!, q_toz, q_toz!, q_fromAxes!
+    q_tox, q_tox!, q_toy, q_toy!, q_toz, q_toz!, q_fromAxes!, q_transformVectorT!
 include("q.jl")
 include("q_static.jl")
 

@@ -212,9 +212,20 @@ end
 @inline function q_transformVector!(v_A, q_AB, v_B)
     # qxv = q_AB[2:4] × v_B
     # return v_B + 2.0*(q_AB[2:4] × qxv + q_AB[1].*qxv) # v_A
-
     qs, qx, qy, qz = q_AB
-    x, y, z = v_B
+    q_transformVectorCore!(v_A, qs, qx, qy, qz, v_B)
+    return
+end
+
+@inline function q_transformVectorT!(v_A, q_BA, v_B)
+    qs, qx, qy, qz = q_BA
+    q_transformVectorCore!(v_A, qs, -qx, -qy, -qz, v_B)
+    return
+end
+
+# q = q_AB
+@inline function q_transformVectorCore!(Vout, qs, qx, qy, qz, Vin)
+    x, y, z = Vin
 
     cx = qy*z - qz*y
     cy = qz*x - qx*z
@@ -224,10 +235,9 @@ end
     c2y = qz*cx - qx*cz
     c2z = qx*cy - qy*cx
 
-    v_A[1] = x + 2(c2x + qs*cx)
-    v_A[2] = y + 2(c2y + qs*cy)
-    v_A[3] = z + 2(c2z + qs*cz)
-
+    Vout[1] = x + 2(c2x + qs*cx)
+    Vout[2] = y + 2(c2y + qs*cy)
+    Vout[3] = z + 2(c2z + qs*cz)
     return
 end
 

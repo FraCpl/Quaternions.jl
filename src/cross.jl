@@ -65,11 +65,16 @@ end
 end
 
 @inline function crossMatSq(v::SVector{3, T}) where T
-    x, y, z = v
+    return crossMatSqStatic(v[1], v[2], v[3])
+end
+
+@inline function crossMatSqStatic(x, y, z)
+    xy = x*y; xz = x*z; yz = y*z
+    xx = x*x; yy = y*y; zz = z*z
     return @SMatrix [
-        (-y*y - z*z) x*y x*z;
-        x*y (-x*x - z*z) y*z;
-        x*z y*z (-x*x - y*y)
+        (-yy - zz) xy xz;
+        xy (-xx - zz) yz;
+        xz yz (-xx - yy);
     ]
 end
 
