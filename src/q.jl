@@ -22,6 +22,8 @@ end
 
 # Auiliary multiplication functions: these are included to allow high-speed in-place
 # multiplication operations without the need of allocating/computing a quaternion transpose
+
+# First term of multiplication is the transpose of the baseline one
 @inline function q_multiplyT1!(q_AC, q_BA, q_BC)
     ps, px, py, pz = q_BA
     qs, qx, qy, qz = q_BC
@@ -29,6 +31,7 @@ end
     return
 end
 
+# Second term of multiplication is the transpose of the baseline one
 @inline function q_multiplyT2!(q_AC, q_AB, q_CB)
     ps, px, py, pz = q_AB
     qs, qx, qy, qz = q_CB
@@ -36,6 +39,7 @@ end
     return
 end
 
+# Both first and second terms of multiplication are the transpose of the baseline ones
 @inline function q_multiplyT12!(q_AC, q_BA, q_CB)
     ps, px, py, pz = q_BA
     qs, qx, qy, qz = q_CB
@@ -43,6 +47,7 @@ end
     return
 end
 
+# Core quaternion multiplication function
 @inline function q_multiplyCore!(qOut, ps, px, py, pz, qs, qx, qy, qz)
     # p ⊗ q
     qOut[1] = ps*qs - px*qx - py*qy - pz*qz
