@@ -12,19 +12,44 @@ q_{AC} = q_{AB} ⊗ q_{BC}
     return q_AC
 end
 
+# Baseline in-place multiplication function
 @inline function q_multiply!(q_AC, q_AB, q_BC)
-    # ps = q_AB[1]; pv = q_AB[2:4]
-    # qs = q_BC[1]; qv = q_BC[2:4]
-    # return [ps*qs - (pv ⋅ qv); ps.*qv + qs.*pv + pv × qv]  # = q_AC = p x q, p = q_AB, q = q_BC
     ps, px, py, pz = q_AB
     qs, qx, qy, qz = q_BC
+    q_multiplyCore!(q_AC, ps, px, py, pz, qs, qx, qy, qz)
+    return
+end
 
-    q_AC[1] = ps*qs - px*qx - py*qy - pz*qz
-    q_AC[2] = px*qs + ps*qx - pz*qy + py*qz
-    q_AC[3] = py*qs + pz*qx + ps*qy - px*qz
-    q_AC[4] = pz*qs - py*qx + px*qy + ps*qz
+# Auiliary multiplication functions: these are included to allow high-speed in-place
+# multiplication operations without the need of allocating/computing a quaternion transpose
+@inline function q_multiplyT1!(q_AC, q_BA, q_BC)
+    ps, px, py, pz = q_BA
+    qs, qx, qy, qz = q_BC
+    q_multiplyCore!(q_AC, ps, -px, -py, -pz, qs, qx, qy, qz)
+    return
+end
 
-    return  # = q_AC = p x q, p = q_AB, q = q_BC
+@inline function q_multiplyT2!(q_AC, q_AB, q_CB)
+    ps, px, py, pz = q_AB
+    qs, qx, qy, qz = q_CB
+    q_multiplyCore!(q_AC, ps, px, py, pz, qs, -qx, -qy, -qz)
+    return
+end
+
+@inline function q_multiplyT12!(q_AC, q_BA, q_CB)
+    ps, px, py, pz = q_BA
+    qs, qx, qy, qz = q_CB
+    q_multiplyCore!(q_AC, ps, -px, -py, -pz, qs, -qx, -qy, -qz)
+    return
+end
+
+@inline function q_multiplyCore!(qOut, ps, px, py, pz, qs, qx, qy, qz)
+    # p ⊗ q
+    qOut[1] = ps*qs - px*qx - py*qy - pz*qz
+    qOut[2] = px*qs + ps*qx - pz*qy + py*qz
+    qOut[3] = py*qs + pz*qx + ps*qy - px*qz
+    qOut[4] = pz*qs - py*qx + px*qy + ps*qz
+    return
 end
 
 """
