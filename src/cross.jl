@@ -84,7 +84,7 @@ end
 end
 
 # a = b × c
-function cross!(a, b, c)
+@inline function cross!(a, b, c)
     a[1] = -b[3]*c[2] + b[2]*c[3]
     a[2] = +b[3]*c[1] - b[1]*c[3]
     a[3] = -b[2]*c[1] + b[1]*c[2]
@@ -92,7 +92,7 @@ function cross!(a, b, c)
 end
 
 # out = a + b × c
-function addCross!(out, a, b, c)
+@inline function addCross!(out, a, b, c)
     cross!(out, b, c)
     out[1] += a[1]
     out[2] += a[2]
@@ -101,7 +101,7 @@ function addCross!(out, a, b, c)
 end
 
 # a = b × (b × c)
-function crossSq!(a, b, c)
+@inline function crossSq!(a, b, c)
     b1, b2, b3 = b
     c1, c2, c3 = c
 
@@ -112,7 +112,7 @@ function crossSq!(a, b, c)
 end
 
 # out = a + b × (b × c)
-function addCrossSq!(out, a, b, c)
+@inline function addCrossSq!(out, a, b, c)
     crossSq!(out, b, c)
     out[1] += a[1]
     out[2] += a[2]
