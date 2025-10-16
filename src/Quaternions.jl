@@ -17,7 +17,7 @@ export q_multiply, q_fromAxes, q_random, q_transformVector,
     q_tox, q_tox!, q_toy, q_toy!, q_toz, q_toz!, q_fromAxes!,
     q_transformVectorT!, q_multiplyT1!, q_multiplyT2!, q_multiplyT12!
 include("q.jl")
-include("q_static.jl")
+#include("q_static.jl")
 
 export dcm_random, dcm_fromAxisAngle, dcm_toQuaternion, dcm_fromQuaternion, dcm_toEuler,
     dcm_toRv, dcm_fromRv, dcm_fromEuler, dcm_fromAxes, dcm_rotAxis, dcm_normalize

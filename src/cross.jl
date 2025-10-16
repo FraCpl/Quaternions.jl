@@ -68,15 +68,15 @@ end
 #     return crossMatSqStatic(v[1], v[2], v[3])
 # end
 
-@inline function crossMatSqStatic(x, y, z)
-    xy = x*y; xz = x*z; yz = y*z
-    xx = x*x; yy = y*y; zz = z*z
-    return @SMatrix [
-        (-yy - zz) xy xz;
-        xy (-xx - zz) yz;
-        xz yz (-xx - yy);
-    ]
-end
+# @inline function crossMatSqStatic(x, y, z)
+#     xy = x*y; xz = x*z; yz = y*z
+#     xx = x*x; yy = y*y; zz = z*z
+#     return @SMatrix [
+#         (-yy - zz) xy xz;
+#         xy (-xx - zz) yz;
+#         xz yz (-xx - yy);
+#     ]
+# end
 
 @inline crossMatInv(M::Matrix) = [-M[2, 3]; M[1, 3]; -M[1, 2]]
 # @inline function crossMatInv(M::SMatrix{3, 3, T}) where T
