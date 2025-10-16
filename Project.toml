@@ -1,14 +1,12 @@
 name = "Quaternions"
 uuid = "d5f8330d-dd38-4550-8d64-11a08a0c5416"
-authors = ["F. Capolupo"]
 version = "0.1.0"
+authors = ["F. Capolupo"]
 
 [deps]
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
-StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [compat]
-StaticArrays = "1.9.14"
 julia = "1.9"
 
 [extras]

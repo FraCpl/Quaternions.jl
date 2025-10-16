@@ -2,7 +2,7 @@
 # European Space Agency, 2023
 module Quaternions
 using LinearAlgebra
-using StaticArrays
+# using StaticArrays
 
 export crossMat, crossMat!, crossMatInv, crossMatSq, crossMatSq!
 export cross!, crossSq!, addCross!, addCrossSq!, crossMatStatic, crossMatSqStatic

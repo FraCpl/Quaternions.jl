@@ -24,15 +24,15 @@ end
     return
 end
 
-@inline function crossMat(v::SVector{3, T}) where T
-    return crossMatStatic(v[1], v[2], v[3])
-end
+# @inline function crossMat(v::SVector{3, T}) where T
+#     return crossMatStatic(v[1], v[2], v[3])
+# end
 
-@inline function crossMatStatic(x, y, z)
-    return @SMatrix [
-        0 -z y; z 0 -x; -y x 0
-    ]
-end
+# @inline function crossMatStatic(x, y, z)
+#     return @SMatrix [
+#         0 -z y; z 0 -x; -y x 0
+#     ]
+# end
 
 @inline function crossMatSq(x, y, z)
     R = Matrix{typeof(x)}(undef, 3, 3)
@@ -64,9 +64,9 @@ end
     return
 end
 
-@inline function crossMatSq(v::SVector{3, T}) where T
-    return crossMatSqStatic(v[1], v[2], v[3])
-end
+# @inline function crossMatSq(v::SVector{3, T}) where T
+#     return crossMatSqStatic(v[1], v[2], v[3])
+# end
 
 @inline function crossMatSqStatic(x, y, z)
     xy = x*y; xz = x*z; yz = y*z
@@ -79,9 +79,9 @@ end
 end
 
 @inline crossMatInv(M::Matrix) = [-M[2, 3]; M[1, 3]; -M[1, 2]]
-@inline function crossMatInv(M::SMatrix{3, 3, T}) where T
-    return @SVector [-M[2, 3]; M[1, 3]; -M[1, 2]]
-end
+# @inline function crossMatInv(M::SMatrix{3, 3, T}) where T
+#     return @SVector [-M[2, 3]; M[1, 3]; -M[1, 2]]
+# end
 
 # a = b × c
 @inline function cross!(a, b, c)
@@ -91,12 +91,11 @@ end
     return
 end
 
-# out = a + b × c
-@inline function addCross!(out, a, b, c)
-    cross!(out, b, c)
-    out[1] += a[1]
-    out[2] += a[2]
-    out[3] += a[3]
+# a += b × c
+@inline function addCross!(a, b, c)
+    a[1] += -b[3]*c[2] + b[2]*c[3]
+    a[2] += +b[3]*c[1] - b[1]*c[3]
+    a[3] += -b[2]*c[1] + b[1]*c[2]
     return
 end
 
@@ -111,11 +110,10 @@ end
     return
 end
 
-# out = a + b × (b × c)
-@inline function addCrossSq!(out, a, b, c)
-    crossSq!(out, b, c)
-    out[1] += a[1]
-    out[2] += a[2]
-    out[3] += a[3]
+# a += b × (b × c)
+@inline function addCrossSq!(a, b, c)
+    a[1] += (-b2*b2 - b3*b3)*c1 + b1*b2*c2 + b1*b3*c3
+    a[2] += (-b1*b1 - b3*b3)*c2 + b1*b2*c1 + b2*b3*c3
+    a[3] += (-b2*b2 - b1*b1)*c3 + b1*b3*c1 + b2*b3*c2
     return
 end
