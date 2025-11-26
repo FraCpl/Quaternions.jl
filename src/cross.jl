@@ -5,6 +5,11 @@ Compute the cross product matrix of a vector ```v```.
 """
 @inline crossMat(v) = crossMat(v[1], v[2], v[3])
 
+"""
+    [v×] = crossMat(x, y, z)
+
+Compute the cross product matrix of a vector ```v``` given its scalar components.
+"""
 @inline function crossMat(x, y, z)
     R = Matrix{typeof(x)}(undef, 3, 3)
     crossMat!(R, x, y, z)
@@ -34,14 +39,24 @@ end
 #     ]
 # end
 
+"""
+    [v×]² = crossMatSq(x, y, z)
+
+Compute the squared cross product matrix of a vector ```v``` given its scalar components.
+"""
 @inline function crossMatSq(x, y, z)
     R = Matrix{typeof(x)}(undef, 3, 3)
     crossMatSq!(R, x, y, z)
     return R
 end
 
+"""
+    [v×]² = crossMatSq(v)
+
+Compute the squared cross product matrix of a vector ```v```.
+"""
 @inline function crossMatSq(v)
-    R = Matrix{typeof(v)}(undef, 3, 3)
+    R = Matrix{eltype(v)}(undef, 3, 3)
     crossMatSq!(R, v[1], v[2], v[3])
     return R
 end
@@ -83,7 +98,11 @@ end
 #     return @SVector [-M[2, 3]; M[1, 3]; -M[1, 2]]
 # end
 
-# a = b × c
+"""
+    cross!(a, b, c)
+
+Compute a = b × c.
+"""
 @inline function cross!(a, b, c)
     a[1] = -b[3]*c[2] + b[2]*c[3]
     a[2] = +b[3]*c[1] - b[1]*c[3]
@@ -91,7 +110,11 @@ end
     return
 end
 
-# a += b × c
+"""
+    addCross!(a, b, c)
+
+Compute a += b × c.
+"""
 @inline function addCross!(a, b, c)
     a[1] += -b[3]*c[2] + b[2]*c[3]
     a[2] += +b[3]*c[1] - b[1]*c[3]
@@ -99,7 +122,11 @@ end
     return
 end
 
-# a = b × (b × c)
+"""
+    crossSq!(a, b, c)
+
+Compute a = b × (b × c).
+"""
 @inline function crossSq!(a, b, c)
     b1, b2, b3 = b
     c1, c2, c3 = c
@@ -110,7 +137,11 @@ end
     return
 end
 
-# a += b × (b × c)
+"""
+    addCrossSq!(a, b, c)
+
+Compute a += b × (b × c).
+"""
 @inline function addCrossSq!(a, b, c)
     a[1] += (-b2*b2 - b3*b3)*c1 + b1*b2*c2 + b1*b3*c3
     a[2] += (-b1*b1 - b3*b3)*c2 + b1*b2*c1 + b2*b3*c3

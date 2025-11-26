@@ -222,16 +222,9 @@ vector components equal to zero.
 
 
 """
-    v_A = q_transformVector(q_AB,v_B)
-(previously known as q_rotateVector)
+    v_A = q_transformVector(q_AB, v_B)
 
-Project the vector v from frame B into frame A using the following
-passive rotation formula
-```math
-vᴬ = q_{AB} ⊗ vᴮ ⊗ q_{BA}
-```
-In the formula above, 3D vectors are represented by quaternions having
-a null scalar component.
+Project the vector v from frame B into frame A.
 """
 @inline function q_transformVector(q_AB, v_B)
     v_A = similar(v_B)
@@ -239,6 +232,11 @@ a null scalar component.
     return v_A
 end
 
+"""
+    q_transformVector!(v_A, q_AB, v_B)
+
+Project the vector v from frame B into frame A.
+"""
 @inline function q_transformVector!(v_A, q_AB, v_B)
     # qxv = q_AB[2:4] × v_B
     # return v_B + 2.0*(q_AB[2:4] × qxv + q_AB[1].*qxv) # v_A
@@ -247,6 +245,11 @@ end
     return
 end
 
+"""
+    q_transformVectorT!(v_A, q_BA, v_B)
+
+Project the vector v from frame B into frame A, using q_BA.
+"""
 @inline function q_transformVectorT!(v_A, q_BA, v_B)
     qs, qx, qy, qz = q_BA
     q_transformVectorCore!(v_A, qs, -qx, -qy, -qz, v_B)
@@ -306,6 +309,19 @@ frame ``A``, projected into frame ``B``.
     return dq_AB
 end
 
+"""
+    q_derivative!(q̇_AB, q_AB, ωAB_B)
+
+Compute the time derivative of a unitary quaternion, given the corresponding
+angular velocity vector.
+
+Mathematically, this function performs the following operation:
+```math
+q̇_{AB} = \\frac{1}{2} q_{AB} ⊗ [0; ω^B_{AB}]
+```
+where ```ωAB_B``` represents the angular velocity of frame ``B`` with respect to
+frame ``A``, projected into frame ``B``.
+"""
 @inline function q_derivative!(dq_AB, q_AB, ωAB_B)
     # q_multiply(q_AB, [0.0; 0.5.*ωAB_B])  # dq_BA
 
@@ -439,18 +455,25 @@ end
     return q
 end
 
+"""
+    qe = q_exp(q)
+
+Compute the exponential of the input quaternion.
+"""
 @inline function q_exp(q)
     qs, qx, qy, qz = q
     qvn = sqrt(qx*qx + qy*qy + qz*qz)
-    qvnn = qvn
-    if qvnn == 0.0
-        qvnn = 1.0
-    end
+    qvnn = qvn == 0 ? 1.0 : qvn
     k = exp(qs)
     qvnn = k*sin(qvn)/qvnn
     return [k*cos(qvn); qx*qvnn; qy*qvnn; qy*qvnn]
 end
 
+"""
+    ql = q_log(q)
+
+Compute the logarithm of the input quaternion.
+"""
 @inline function q_log(q)
     qs, qx, qy, qz = q
     vNorm = sqrt(qx*qx + qy*qy + qz*qz)
@@ -464,7 +487,11 @@ end
 
 @inline q_power(q, n) = q_exp(n.*q_log(q))
 
-# τ in [0, 1]
+"""
+    q = q_slerp(q0, q1, τ)
+
+Compute the spherical linear interpolation between two quaternions at τ, where q0 = q[τ=0], q1 = q[τ=1], and q = q[τ].
+"""
 @inline q_slerp(q0, q1, τ) = q_multiply(q0, q_power(q_multiply(q_transpose(q0), q1), τ))
 
 @inline function q_interp(t, q, ti)
@@ -494,24 +521,44 @@ end
     return  # 2q_multiply(q_transpose(sgn*q), qNominal)[2:4]
 end
 
+"""
+    xB_A = q_tox(q_AB)
+
+Compute the x axis of frame B projected in frame A.
+"""
 @inline function q_tox(q_AB)
     out = Vector{eltype(q_AB)}(undef, 3)
     q_tox!(out, q_AB)
     return out
 end
 
+"""
+    yB_A = q_toy(q_AB)
+
+Compute the y axis of frame B projected in frame A.
+"""
 @inline function q_toy(q_AB)
     out = Vector{eltype(q_AB)}(undef, 3)
     q_toy!(out, q_AB)
     return out
 end
 
+"""
+    zB_A = q_toz(q_AB)
+
+Compute the z axis of frame B projected in frame A.
+"""
 @inline function q_toz(q_AB)
     out = Vector{eltype(q_AB)}(undef, 3)
     q_toz!(out, q_AB)
     return out
 end
 
+"""
+    q_tox!(xB_A, q_AB)
+
+Compute the x axis of frame B projected in frame A.
+"""
 @inline function q_tox!(xB_A, q_AB)
     qs, qx, qy, qz = q_AB
 
@@ -526,6 +573,11 @@ end
     return
 end
 
+"""
+    q_toy!(yB_A, q_AB)
+
+Compute the y axis of frame B projected in frame A.
+"""
 @inline function q_toy!(yB_A, q_AB)
     qs, qx, qy, qz = q_AB
 
@@ -540,6 +592,11 @@ end
     return
 end
 
+"""
+    q_toz!(zB_A, q_AB)
+
+Compute the z axis of frame B projected in frame A.
+"""
 @inline function q_toz!(zB_A, q_AB)
     qs, qx, qy, qz = q_AB
 
