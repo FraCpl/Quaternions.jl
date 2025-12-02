@@ -7,5 +7,5 @@
     # Bortz equation
     θ = norm(ϕ_AB)
     ϕxω = ϕ_AB × ωAB_B
-    return ωAB_B + 0.5*ϕxω + (1.0/θ^2 - 0.5/θ/tan(θ))* (ϕ_AB × ϕxω)
+    return ωAB_B + 0.5*ϕxω + (1.0/θ^2 - 0.5/θ/tan(θ)) * (ϕ_AB × ϕxω)
 end

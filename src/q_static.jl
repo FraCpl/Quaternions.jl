@@ -1,4 +1,4 @@
-@inline function q_multiply(q_AB::SVector{4, T}, q_BC::SVector{4, T}) where T
+@inline function q_multiply(q_AB::SVector{4,T}, q_BC::SVector{4,T}) where {T}
     ps, px, py, pz = q_AB
     qs, qx, qy, qz = q_BC
 
@@ -6,11 +6,11 @@
         ps*qs - px*qx - py*qy - pz*qz,
         px*qs + ps*qx - pz*qy + py*qz,
         py*qs + pz*qx + ps*qy - px*qz,
-        pz*qs - py*qx + px*qy + ps*qz
+        pz*qs - py*qx + px*qy + ps*qz,
     ]
 end
 
-@inline function q_toDcm(q::SVector{4, T}) where T
+@inline function q_toDcm(q::SVector{4,T}) where {T}
     s, x, y, z = q
     x2, y2, z2 = x + x, y + y, z + z
     sx, sy, sz = s*x2, s*y2, s*z2
@@ -19,12 +19,12 @@ end
 
     return @SMatrix [
         (1 - (yy + zz)) (xy - sz) (xz + sy);
-        (xy + sz)  (1 - (xx + zz)) (yz - sx);
+        (xy + sz) (1 - (xx + zz)) (yz - sx);
         (xz - sy) (yz + sx) (1 - (xx + yy))
     ]
 end
 
-@inline function q_fromDcm(R_BA::SMatrix{3, 3, T}) where T
+@inline function q_fromDcm(R_BA::SMatrix{3,3,T}) where {T}
     r11, r21, r31 = R_BA[1, 1], R_BA[1, 2], R_BA[1, 3]
     r12, r22, r32 = R_BA[2, 1], R_BA[2, 2], R_BA[2, 3]
     r13, r23, r33 = R_BA[3, 1], R_BA[3, 2], R_BA[3, 3]
@@ -35,9 +35,21 @@ end
     v4 = 1 + r11 + r22 + r33
 
     idx = 1
-    if v2 > vmax; idx = 2; vmax = v2; end
-    if v3 > vmax; idx = 3; vmax = v3; end
-    if v4 > vmax; idx = 4; vmax = v4; end
+    if v2 > vmax
+        ;
+        idx = 2;
+        vmax = v2;
+    end
+    if v3 > vmax
+        ;
+        idx = 3;
+        vmax = v3;
+    end
+    if v4 > vmax
+        ;
+        idx = 4;
+        vmax = v4;
+    end
 
     qx = 0.5*sqrt(abs(vmax))
     f = 0.25/qx
@@ -52,7 +64,7 @@ end
     return @SVector [qx; f*(r23 - r32); f*(r31 - r13); f*(r12 - r21)]
 end
 
-@inline function q_transformVector(q_AB::SVector{4, T}, v_B::SVector{3, T}) where T
+@inline function q_transformVector(q_AB::SVector{4,T}, v_B::SVector{3,T}) where {T}
     qs, qx, qy, qz = q_AB
     x, y, z = v_B
 
@@ -71,11 +83,11 @@ end
     ]
 end
 
-@inline function q_transpose(q::SVector{4, T}) where T
+@inline function q_transpose(q::SVector{4,T}) where {T}
     return @SVector [q[1]; -q[2]; -q[3]; -q[4]]
 end
 
-@inline function q_derivative(q_AB::SVector{4, T}, ωAB_B::SVector{3, T}) where T
+@inline function q_derivative(q_AB::SVector{4,T}, ωAB_B::SVector{3,T}) where {T}
     ps, px, py, pz = q_AB
     qx, qy, qz = ωAB_B
 
@@ -87,7 +99,7 @@ end
     ]
 end
 
-@inline function q_tox(q_AB::SVector{4, T}) where T
+@inline function q_tox(q_AB::SVector{4,T}) where {T}
     qs, qx, qy, qz = q_AB
 
     c2x = -qy*qy - qz*qz
@@ -101,7 +113,7 @@ end
     ]
 end
 
-@inline function q_toy!(q_AB::SVector{4, T}) where T
+@inline function q_toy!(q_AB::SVector{4,T}) where {T}
     qs, qx, qy, qz = q_AB
 
     c2x = qy*qx
@@ -115,7 +127,7 @@ end
     ]
 end
 
-@inline function q_toz!(q_AB::SVector{4, T}) where T
+@inline function q_toz!(q_AB::SVector{4,T}) where {T}
     qs, qx, qy, qz = q_AB
 
     c2x = qz*qx
@@ -129,7 +141,7 @@ end
     ]
 end
 
-@inline function q_attitudeError(qNominal::SVector{4, T}, q::SVector{4, T}) where T
+@inline function q_attitudeError(qNominal::SVector{4,T}, q::SVector{4,T}) where {T}
     ps, px, py, pz = q
     qs, qx, qy, qz = qNominal
 

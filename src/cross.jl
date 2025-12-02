@@ -22,10 +22,16 @@ end
 end
 
 @inline function crossMat!(R, x, y, z)
-    @inbounds for i in 1:3; R[i, i] = 0.0; end
-    R[1, 2] = -z;    R[1, 3] = +y
-    R[2, 1] = +z;    R[2, 3] = -x
-    R[3, 1] = -y;    R[3, 2] = +x
+    @inbounds for i = 1:3
+        ;
+        R[i, i] = 0.0;
+    end
+    R[1, 2] = -z
+    R[1, 3] = +y
+    R[2, 1] = +z
+    R[2, 3] = -x
+    R[3, 1] = -y
+    R[3, 2] = +x
     return
 end
 

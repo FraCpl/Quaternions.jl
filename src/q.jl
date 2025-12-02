@@ -66,7 +66,7 @@ end
 """
 @inline function q_multiplyn(q...)
     qOut = copy(q[1])
-    for i in 2:lastindex(q)
+    for i = 2:lastindex(q)
         qOut = q_multiply(qOut, q[i])
     end
 
@@ -166,21 +166,42 @@ end
     v4 = 1 + r11 + r22 + r33
 
     idx = 1
-    if v2 > vmax; idx = 2; vmax = v2; end
-    if v3 > vmax; idx = 3; vmax = v3; end
-    if v4 > vmax; idx = 4; vmax = v4; end
+    if v2 > vmax
+        idx = 2
+        vmax = v2
+    end
+    if v3 > vmax
+        idx = 3
+        vmax = v3
+    end
+    if v4 > vmax
+        idx = 4
+        vmax = v4
+    end
 
     qx = 0.5*sqrt(abs(vmax))
     f = 0.25/qx
 
     if idx == 1
-        q[1] = f*(r23 - r32); q[2] = qx; q[3] = f*(r12 + r21); q[4] = f*(r31 + r13)
+        q[1] = f*(r23 - r32)
+        q[2] = qx
+        q[3] = f*(r12 + r21)
+        q[4] = f*(r31 + r13)
     elseif idx == 2
-        q[1] = f*(r31 - r13); q[2] = f*(r12 + r21); q[3] = qx; q[4] = f*(r23 + r32)
+        q[1] = f*(r31 - r13)
+        q[2] = f*(r12 + r21)
+        q[3] = qx
+        q[4] = f*(r23 + r32)
     elseif idx == 3
-        q[1] = f*(r12 - r21); q[2] = f*(r31 + r13); q[3] = f*(r23 + r32); q[4] = qx
+        q[1] = f*(r12 - r21)
+        q[2] = f*(r31 + r13)
+        q[3] = f*(r23 + r32)
+        q[4] = qx
     else
-        q[1] = qx; q[2] = f*(r23 - r32); q[3] = f*(r31 - r13); q[4] = f*(r12 - r21)
+        q[1] = qx
+        q[2] = f*(r23 - r32)
+        q[3] = f*(r31 - r13)
+        q[4] = f*(r12 - r21)
     end
     return
 end
@@ -280,13 +301,19 @@ end
 Transpose the input quaternion.
 """
 @inline function q_transpose!(q)
-    @inbounds for i in 2:4; q[i] = -q[i]; end
+    @inbounds for i = 2:4
+        ;
+        q[i] = -q[i];
+    end
     return
 end
 @inline q_transpose(q) = [q[1]; -q[2]; -q[3]; -q[4]]
 @inline function q_transpose!(qt, q)
     qt[1] = q[1]
-    @inbounds for i in 2:4; qt[i] = -q[i]; end
+    @inbounds for i = 2:4
+        ;
+        qt[i] = -q[i];
+    end
     return
 end
 
@@ -377,7 +404,10 @@ end
 @inline function q_toRv(q)
     qs, qx, qy, qz = q
     nqv = sqrt(qx*qx + qy*qy + qz*qz)
-    if nqv < 1e-10; return zeros(3); end
+    if nqv < 1e-10
+        ;
+        return zeros(3);
+    end
     nqv = 2atan(nqv, qs)/nqv
     return [qx*nqv; qy*nqv; qz*nqv]
 end
@@ -395,8 +425,8 @@ rotates q[k-1] into q[k].
 """
 @inline @views function q_rate(t, q_AB)
     dt = diff(t)
-    dq_AB = q_multiply.(q_transpose.(q_AB[1:end-1]), q_AB[2:end])
-    return [q_toRv.(dq_AB)./dt; [zeros(3)]]    # angRateAB_B
+    dq_AB = q_multiply.(q_transpose.(q_AB[1:(end-1)]), q_AB[2:end])
+    return [q_toRv.(dq_AB) ./ dt; [zeros(3)]]    # angRateAB_B
 end
 
 # Δt = t2 - t1
@@ -410,7 +440,7 @@ end
 # https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
 # 3(yaw)-2(pitch)-1(roll) sequence
 # CAUTION: Only [3, 2, 1] and [1, 2, 3] sequencs are implemented for now
-function q_toEuler(q, sequence=[3, 2, 1])
+function q_toEuler(q, sequence = [3, 2, 1])
     qs, qx, qy, qz = q
 
     if sequence == [3, 2, 1]
@@ -447,9 +477,9 @@ function q_toEuler(q, sequence=[3, 2, 1])
     end
 end
 
-@inline function q_fromEuler(θ, sequence=[3, 2, 1])
+@inline function q_fromEuler(θ, sequence = [3, 2, 1])
     q = q_fromAxisAngle(sequence[1], θ[1])
-    for i in 2:lastindex(θ)
+    for i = 2:lastindex(θ)
         q .= q_multiply(q, q_fromAxisAngle(sequence[i], θ[i]))
     end
     return q
@@ -485,7 +515,7 @@ Compute the logarithm of the input quaternion.
     return [log(nq); qx*vNorm; qy*vNorm; qz*vNorm]
 end
 
-@inline q_power(q, n) = q_exp(n.*q_log(q))
+@inline q_power(q, n) = q_exp(n .* q_log(q))
 
 """
     q = q_slerp(q0, q1, τ)
@@ -623,40 +653,53 @@ end
 function q_testConvention(qp, q, p)
 
     # out = q*p
-    function q_multiplyUniversal(q, p; scalarFirst=true, right=true)
-        qq = copy(q); pp = copy(p)
+    function q_multiplyUniversal(q, p; scalarFirst = true, right = true)
+        qq = copy(q);
+        pp = copy(p)
         if !scalarFirst
             qq = [q[4]; q[1:3]]
             pp = [p[4]; p[1:3]]
         end
         qqpp = right ? qp_right(qq, pp) : qp_left(qq, pp)
-        if scalarFirst; return qqpp; end
+        if scalarFirst
+            ;
+            return qqpp;
+        end
         return [qqpp[2:4]; qqpp[1]]
     end
 
     function qp_right(q, p)
         qs, qx, qy, qz = q
-        return [+qs -qx -qy -qz;
-                +qx +qs -qz +qy;
-                +qy +qz +qs -qx;
-                +qz -qy +qx +qs]*p
+        return [
+            +qs -qx -qy -qz;
+            +qx +qs -qz +qy;
+            +qy +qz +qs -qx;
+            +qz -qy +qx +qs
+        ]*p
     end
 
     function qp_left(q, p)
         qs, qx, qy, qz = q
-        return [+qs -qx -qy -qz;
-                +qx +qs +qz -qy;
-                +qy -qz +qs +qx;
-                +qz +qy -qx +qs]*p
+        return [
+            +qs -qx -qy -qz;
+            +qx +qs +qz -qy;
+            +qy -qz +qs +qx;
+            +qz +qy -qx +qs
+        ]*p
     end
 
     qerr(a, b) = min(norm(a - b), norm(a + b))
-    qp1 = q_multiplyUniversal(q, p; scalarFirst=true, right=true)
-    qp2 = q_multiplyUniversal(q, p; scalarFirst=false, right=true)
-    qp3 = q_multiplyUniversal(q, p; scalarFirst=true, right=false)
-    qp4 = q_multiplyUniversal(q, p; scalarFirst=false, right=false)
+    qp1 = q_multiplyUniversal(q, p; scalarFirst = true, right = true)
+    qp2 = q_multiplyUniversal(q, p; scalarFirst = false, right = true)
+    qp3 = q_multiplyUniversal(q, p; scalarFirst = true, right = false)
+    qp4 = q_multiplyUniversal(q, p; scalarFirst = false, right = false)
     errv = [qerr(qp1, qp), qerr(qp2, qp), qerr(qp3, qp), qerr(qp4, qp)]
 
-    msgs = ["Scalar first, right-handed (ij = k)", "Scalar last, right-handed (ij = k)", "Scalar first, left-handed (ij = -k)", "Scalar-last, left-handed (ij = -k)"]
+    msgs = [
+        "Scalar first, right-handed (ij = k)",
+        "Scalar last, right-handed (ij = k)",
+        "Scalar first, left-handed (ij = -k)",
+        "Scalar-last, left-handed (ij = -k)",
+    ]
     println("Quaternion convention: \n"*msgs[findmin(errv)[2]])
 end

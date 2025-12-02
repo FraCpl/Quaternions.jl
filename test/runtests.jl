@@ -3,34 +3,38 @@ using Test
 
 function TEST_rots()
     N = 100
-    v_A = [randn(3) for _ in 1:N]
-    vq_A = [[0.0; v_A[i]] for i in 1:N]
-    R_BA = [dcm_random() for _ in 1:N]
+    v_A = [randn(3) for _ = 1:N]
+    vq_A = [[0.0; v_A[i]] for i = 1:N]
+    R_BA = [dcm_random() for _ = 1:N]
     q_BA = q_fromDcm.(R_BA)
     q_AB = q_transpose.(q_BA)
-    v1_B = [R_BA[i]*v_A[i] for i in 1:N]
+    v1_B = [R_BA[i]*v_A[i] for i = 1:N]
     v2_B = q_transformVector.(q_BA, v_A)
-    vq3_B = q_multiply.(q_BA,q_multiply.(vq_A,q_AB))
-    v3_B = [vq3_B[i][2:4] for i in 1:N]
+    vq3_B = q_multiply.(q_BA, q_multiply.(vq_A, q_AB))
+    v3_B = [vq3_B[i][2:4] for i = 1:N]
 
     axis = normalize(randn(3))
     angle = 2π*rand()
 
-    R1 = q_toDcm(q_fromAxisAngle(axis,angle))
-    R2 = dcm_fromAxisAngle(axis,angle)
+    R1 = q_toDcm(q_fromAxisAngle(axis, angle))
+    R2 = dcm_fromAxisAngle(axis, angle)
 
-    ε = maximum([
-        maximum(norm.(v1_B - v2_B));
-        maximum(norm.(v1_B - v3_B));
-        maximum(norm.(q_toDcm.(q_BA) - R_BA));
-        maximum(norm.(R1 - R2))
-        ])
+    ε = maximum(
+        [
+            maximum(norm.(v1_B - v2_B));
+            maximum(norm.(v1_B - v3_B));
+            maximum(norm.(q_toDcm.(q_BA) - R_BA));
+            maximum(norm.(R1 - R2))
+        ],
+    )
     return ε
 end
 
 function TEST_mult()
-    q = [q_random() for _ in 1:4]
-    ε = q_multiplyn(q[1],q[2],q[3],q[4]) - q_multiply(q[1],q_multiply(q[2],q_multiply(q[3],q[4])))
+    q = [q_random() for _ = 1:4]
+    ε =
+        q_multiplyn(q[1], q[2], q[3], q[4]) -
+        q_multiply(q[1], q_multiply(q[2], q_multiply(q[3], q[4])))
     return maximum(abs.(ε))
 end
 
@@ -57,14 +61,14 @@ end
 =#
 
 function TEST_euler123()
-    eul = [[-π + 2π*rand(); -π/2 + π*rand(); -π + 2π*rand()] for _ in 1:10_000]
+    eul = [[-π + 2π*rand(); -π/2 + π*rand(); -π + 2π*rand()] for _ = 1:10_000]
     seq = [1, 2, 3]
     eult = q_toEuler.(q_fromEuler.(eul, Ref(seq)), Ref(seq))
     return maximum(norm.(eul - eult))
 end
 
 function TEST_euler321()
-    eul = [[-π + 2π*rand(); -π/2 + π*rand(); -π + 2π*rand()] for _ in 1:10_000]
+    eul = [[-π + 2π*rand(); -π/2 + π*rand(); -π + 2π*rand()] for _ = 1:10_000]
     seq = [3, 2, 1]
     eult = q_toEuler.(q_fromEuler.(eul, Ref(seq)), Ref(seq))
     return maximum(norm.(eul - eult))
