@@ -17,7 +17,7 @@ end
     ps, px, py, pz = q_AB
     qs, qx, qy, qz = q_BC
     q_multiplyCore!(q_AC, ps, px, py, pz, qs, qx, qy, qz)
-    return
+    return nothing
 end
 
 # Auiliary multiplication functions: these are included to allow high-speed in-place
@@ -28,7 +28,7 @@ end
     ps, px, py, pz = q_BA
     qs, qx, qy, qz = q_BC
     q_multiplyCore!(q_AC, ps, -px, -py, -pz, qs, qx, qy, qz)
-    return
+    return nothing
 end
 
 # Second term of multiplication is the transpose of the baseline one
@@ -36,7 +36,7 @@ end
     ps, px, py, pz = q_AB
     qs, qx, qy, qz = q_CB
     q_multiplyCore!(q_AC, ps, px, py, pz, qs, -qx, -qy, -qz)
-    return
+    return nothing
 end
 
 # Both first and second terms of multiplication are the transpose of the baseline ones
@@ -44,7 +44,7 @@ end
     ps, px, py, pz = q_BA
     qs, qx, qy, qz = q_CB
     q_multiplyCore!(q_AC, ps, -px, -py, -pz, qs, -qx, -qy, -qz)
-    return
+    return nothing
 end
 
 # Core quaternion multiplication function
@@ -54,7 +54,7 @@ end
     qOut[2] = px*qs + ps*qx - pz*qy + py*qz
     qOut[3] = py*qs + pz*qx + ps*qy - px*qz
     qOut[4] = pz*qs - py*qx + px*qy + ps*qz
-    return
+    return nothing
 end
 
 """
@@ -66,7 +66,7 @@ end
 """
 @inline function q_multiplyn(q...)
     qOut = copy(q[1])
-    for i = 2:lastindex(q)
+    for i in 2:lastindex(q)
         qOut = q_multiply(qOut, q[i])
     end
 
@@ -115,9 +115,8 @@ end
     R[3, 2] = yz + sx
     R[3, 3] = 1.0 - (xx + yy)
 
-    return
+    return nothing
 end
-
 
 """
     q_AB = q_fromDcm(R_AB)
@@ -203,7 +202,7 @@ end
         q[3] = f*(r31 - r13)
         q[4] = f*(r12 - r21)
     end
-    return
+    return nothing
 end
 
 """
@@ -241,7 +240,6 @@ vector components equal to zero.
 """
 @inline q_identity() = [1.0; 0.0; 0.0; 0.0]
 
-
 """
     v_A = q_transformVector(q_AB, v_B)
 
@@ -263,7 +261,7 @@ Project the vector v from frame B into frame A.
     # return v_B + 2.0*(q_AB[2:4] × qxv + q_AB[1].*qxv) # v_A
     qs, qx, qy, qz = q_AB
     q_transformVectorCore!(v_A, qs, qx, qy, qz, v_B)
-    return
+    return nothing
 end
 
 """
@@ -274,7 +272,7 @@ Project the vector v from frame B into frame A, using q_BA.
 @inline function q_transformVectorT!(v_A, q_BA, v_B)
     qs, qx, qy, qz = q_BA
     q_transformVectorCore!(v_A, qs, -qx, -qy, -qz, v_B)
-    return
+    return nothing
 end
 
 # q = q_AB
@@ -292,7 +290,7 @@ end
     Vout[1] = x + 2(c2x + qs*cx)
     Vout[2] = y + 2(c2y + qs*cy)
     Vout[3] = z + 2(c2z + qs*cz)
-    return
+    return nothing
 end
 
 """
@@ -301,20 +299,20 @@ end
 Transpose the input quaternion.
 """
 @inline function q_transpose!(q)
-    @inbounds for i = 2:4
+    @inbounds for i in 2:4
         ;
         q[i] = -q[i];
     end
-    return
+    return nothing
 end
 @inline q_transpose(q) = [q[1]; -q[2]; -q[3]; -q[4]]
 @inline function q_transpose!(qt, q)
     qt[1] = q[1]
-    @inbounds for i = 2:4
+    @inbounds for i in 2:4
         ;
         qt[i] = -q[i];
     end
-    return
+    return nothing
 end
 
 """
@@ -360,7 +358,7 @@ frame ``A``, projected into frame ``B``.
     dq_AB[3] = (+ pz*qx + ps*qy - px*qz)/2
     dq_AB[4] = (- py*qx + px*qy + ps*qz)/2
 
-    return
+    return nothing
 end
 
 """
@@ -373,7 +371,7 @@ q_fromAxisAngle(u, θ) = iszero(u) ? q_identity() : [cos(0.5θ); sin(0.5θ)*norm
 @inline function q_fromAxisAngle(idx::Int, θ)
     sθ, cθ = sincos(θ/2)
     q = [cθ; 0.0; 0.0; 0.0]
-    q[idx+1] = sθ
+    q[idx + 1] = sθ
     return q
 end
 
@@ -382,7 +380,6 @@ end
     nqv = sqrt(qx*qx + qy*qy + qz*qz)
     return [qx/nqv; qy/nqv; qz/nqv], 2atan(nqv, qs)
 end
-
 
 @inline function q_toAxes(q_AB)
     R = q_toDcm(q_AB)
@@ -399,7 +396,6 @@ Compute the inverse of the input quaternion.
     nq2 = qs*qs + qx*qx + qy*qy + qz*qz
     return [qs/nq2; -qx/nq2; -qy/nq2; -qz/nq2]
 end
-
 
 @inline function q_toRv(q)
     qs, qx, qy, qz = q
@@ -425,7 +421,7 @@ rotates q[k-1] into q[k].
 """
 @inline @views function q_rate(t, q_AB)
     dt = diff(t)
-    dq_AB = q_multiply.(q_transpose.(q_AB[1:(end-1)]), q_AB[2:end])
+    dq_AB = q_multiply.(q_transpose.(q_AB[1:(end - 1)]), q_AB[2:end])
     return [q_toRv.(dq_AB) ./ dt; [zeros(3)]]    # angRateAB_B
 end
 
@@ -440,7 +436,7 @@ end
 # https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
 # 3(yaw)-2(pitch)-1(roll) sequence
 # CAUTION: Only [3, 2, 1] and [1, 2, 3] sequencs are implemented for now
-function q_toEuler(q, sequence = [3, 2, 1])
+function q_toEuler(q, sequence=[3, 2, 1])
     qs, qx, qy, qz = q
 
     if sequence == [3, 2, 1]
@@ -477,9 +473,9 @@ function q_toEuler(q, sequence = [3, 2, 1])
     end
 end
 
-@inline function q_fromEuler(θ, sequence = [3, 2, 1])
+@inline function q_fromEuler(θ, sequence=[3, 2, 1])
     q = q_fromAxisAngle(sequence[1], θ[1])
-    for i = 2:lastindex(θ)
+    for i in 2:lastindex(θ)
         q .= q_multiply(q, q_fromAxisAngle(sequence[i], θ[i]))
     end
     return q
@@ -548,7 +544,7 @@ end
     err[2] = (-py*qs - pz*qx + ps*qy + px*qz)*sgn
     err[3] = (-pz*qs + py*qx - px*qy + ps*qz)*sgn
 
-    return  # 2q_multiply(q_transpose(sgn*q), qNominal)[2:4]
+    return nothing  # 2q_multiply(q_transpose(sgn*q), qNominal)[2:4]
 end
 
 """
@@ -600,7 +596,7 @@ Compute the x axis of frame B projected in frame A.
     xB_A[2] = 2(c2y + qs*qz)
     xB_A[3] = 2(c2z - qs*qy)
 
-    return
+    return nothing
 end
 
 """
@@ -619,7 +615,7 @@ Compute the y axis of frame B projected in frame A.
     yB_A[2] = 1.0 + 2(c2y)
     yB_A[3] = 2(c2z + qs*qx)
 
-    return
+    return nothing
 end
 
 """
@@ -638,7 +634,7 @@ Compute the z axis of frame B projected in frame A.
     zB_A[2] = 2(c2y - qs*qx)
     zB_A[3] = 1.0 + 2(c2z)
 
-    return
+    return nothing
 end
 
 # This function determines the convention used by a quaternion multiplication function in
@@ -653,7 +649,7 @@ end
 function q_testConvention(qp, q, p)
 
     # out = q*p
-    function q_multiplyUniversal(q, p; scalarFirst = true, right = true)
+    function q_multiplyUniversal(q, p; scalarFirst=true, right=true)
         qq = copy(q);
         pp = copy(p)
         if !scalarFirst
@@ -689,10 +685,10 @@ function q_testConvention(qp, q, p)
     end
 
     qerr(a, b) = min(norm(a - b), norm(a + b))
-    qp1 = q_multiplyUniversal(q, p; scalarFirst = true, right = true)
-    qp2 = q_multiplyUniversal(q, p; scalarFirst = false, right = true)
-    qp3 = q_multiplyUniversal(q, p; scalarFirst = true, right = false)
-    qp4 = q_multiplyUniversal(q, p; scalarFirst = false, right = false)
+    qp1 = q_multiplyUniversal(q, p; scalarFirst=true, right=true)
+    qp2 = q_multiplyUniversal(q, p; scalarFirst=false, right=true)
+    qp3 = q_multiplyUniversal(q, p; scalarFirst=true, right=false)
+    qp4 = q_multiplyUniversal(q, p; scalarFirst=false, right=false)
     errv = [qerr(qp1, qp), qerr(qp2, qp), qerr(qp3, qp), qerr(qp4, qp)]
 
     msgs = [

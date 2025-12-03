@@ -17,15 +17,14 @@ R_{AB}(θ_{AB}) = I + \\sin(θ_{AB})[u×] + (1 - \\cos(θ_{AB}))[u×]^2
 @inline dcm_fromAxisAngle(idx::Int, θ) = dcm_fromEuler([θ], [idx])
 
 # θ = [θ_AB, θ_BC, θ_CD] --> R_AD
-function dcm_fromEuler(θ, sequence::Vector{Int} = [3, 2, 1])
+function dcm_fromEuler(θ, sequence::Vector{Int}=[3, 2, 1])
     R = dcm_rotAxis(θ[1], sequence[1])
-    for k = 2:lastindex(sequence)
+    for k in 2:lastindex(sequence)
         R .= R*dcm_rotAxis(θ[k], sequence[k])
     end
     return R
 end
-@inline dcm_toEuler(R, sequence::Vector{Int} = [3, 2, 1]) =
-    q_toEuler(q_fromDcm(R), sequence)
+@inline dcm_toEuler(R, sequence::Vector{Int}=[3, 2, 1]) = q_toEuler(q_fromDcm(R), sequence)
 
 """
     q_AB = dcm_toQuaternion(R_AB)
@@ -84,8 +83,7 @@ end
     return [cθ -sθ 0; sθ cθ 0; 0 0 1]
 end
 
-
 @inline function dcm_normalize(R)
-    U, ~, V = svd(R; full = true)
+    U, ~, V = svd(R; full=true)
     return U*V'
 end

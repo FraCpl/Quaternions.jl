@@ -2,12 +2,7 @@
     ps, px, py, pz = q_AB
     qs, qx, qy, qz = q_BC
 
-    return @SVector [
-        ps*qs - px*qx - py*qy - pz*qz,
-        px*qs + ps*qx - pz*qy + py*qz,
-        py*qs + pz*qx + ps*qy - px*qz,
-        pz*qs - py*qx + px*qy + ps*qz,
-    ]
+    return @SVector [ps*qs - px*qx - py*qy - pz*qz, px*qs + ps*qx - pz*qy + py*qz, py*qs + pz*qx + ps*qy - px*qz, pz*qs - py*qx + px*qy + ps*qz]
 end
 
 @inline function q_toDcm(q::SVector{4,T}) where {T}

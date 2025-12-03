@@ -18,11 +18,11 @@ end
 
 @inline function crossMat!(R, v)
     crossMat!(R, v[1], v[2], v[3])
-    return
+    return nothing
 end
 
 @inline function crossMat!(R, x, y, z)
-    @inbounds for i = 1:3
+    @inbounds for i in 1:3
         ;
         R[i, i] = 0.0;
     end
@@ -32,7 +32,7 @@ end
     R[2, 3] = -x
     R[3, 1] = -y
     R[3, 2] = +x
-    return
+    return nothing
 end
 
 # @inline function crossMat(v::SVector{3, T}) where T
@@ -69,7 +69,7 @@ end
 
 @inline function crossMatSq!(R, v)
     crossMatSq!(R, v[1], v[2], v[3])
-    return
+    return nothing
 end
 
 @inline function crossMatSq!(R, x, y, z)
@@ -82,7 +82,7 @@ end
     R[2, 1] = R[1, 2]
     R[3, 1] = R[1, 3]
     R[3, 2] = R[2, 3]
-    return
+    return nothing
 end
 
 # @inline function crossMatSq(v::SVector{3, T}) where T
@@ -113,7 +113,7 @@ Compute a = b × c.
     a[1] = -b[3]*c[2] + b[2]*c[3]
     a[2] = +b[3]*c[1] - b[1]*c[3]
     a[3] = -b[2]*c[1] + b[1]*c[2]
-    return
+    return nothing
 end
 
 """
@@ -125,7 +125,7 @@ Compute a += b × c.
     a[1] += -b[3]*c[2] + b[2]*c[3]
     a[2] += +b[3]*c[1] - b[1]*c[3]
     a[3] += -b[2]*c[1] + b[1]*c[2]
-    return
+    return nothing
 end
 
 """
@@ -140,7 +140,7 @@ Compute a = b × (b × c).
     a[1] = (-b2*b2 - b3*b3)*c1 + b1*b2*c2 + b1*b3*c3
     a[2] = (-b1*b1 - b3*b3)*c2 + b1*b2*c1 + b2*b3*c3
     a[3] = (-b2*b2 - b1*b1)*c3 + b1*b3*c1 + b2*b3*c2
-    return
+    return nothing
 end
 
 """
@@ -152,5 +152,5 @@ Compute a += b × (b × c).
     a[1] += (-b2*b2 - b3*b3)*c1 + b1*b2*c2 + b1*b3*c3
     a[2] += (-b1*b1 - b3*b3)*c2 + b1*b2*c1 + b2*b3*c3
     a[3] += (-b2*b2 - b1*b1)*c3 + b1*b3*c1 + b2*b3*c2
-    return
+    return nothing
 end
